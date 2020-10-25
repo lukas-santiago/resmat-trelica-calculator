@@ -30,6 +30,8 @@ body {
 	background-color: aquamarine;
 	padding: 1em;
 
+	min-height: 400px;
+
 	display: grid;
     place-items: center;
 }

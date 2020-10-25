@@ -12,40 +12,46 @@
 <body>
     <div class="container h-75">
         <div class="row h-100">
-            <div class="col-4 sidebar">
-                <div class="input-group mb-2">
-                    <div class="input-group-append">
-                        <span class="input-group-text" >Colunas</span>
+            <div class="col-sm-12 col-md-4 col-lg-3 sidebar">
+                <div class="row">
+                    <div class="col-sm-6 col-md-12">
+                        <div class="input-group mb-2">
+                            <div class="input-group-append">
+                                <span class="input-group-text">Colunas</span>
+                            </div>
+                            <input id="input-colunas" class="form-control" type="number" name="Colunas"
+                                placeholder="Ex: 5" aria-label="Colunas" aria-describedby="input-colunas">
+                        </div>
+                        <div class="input-group mb-2">
+                            <div class="input-group-append">
+                                <span class="input-group-text">Linhas</span>
+                            </div>
+                            <input id="input-linhas" class="form-control" type="number" name="Linhas"
+                                placeholder="Ex: 5" aria-label="Ex: 5" aria-describedby="input-linhas">
+                        </div>
+                        <button id="gerar-grade" class="btn btn-info" type="button">Gerar Grade</button>
+                        <hr class="d-sm-none d-md-block">
                     </div>
-                    <input id="input-colunas" class="form-control" type="number" name="Colunas" placeholder="Ex: 5" aria-label="Colunas"
-                        aria-describedby="input-colunas">
-                </div>
-                <div class="input-group mb-2">
-                    <div class="input-group-append">
-                        <span class="input-group-text">Linhas</span>
+                    <div class="col-sm-6 col-md-12">
+                        <div class="list-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-secondary btn-sm m-1 draw-option" for="barra">
+                                <input type="radio" name="options" id="barra" autocomplete="off" checked> Barra
+                            </label>
+                            <label class="btn btn-secondary btn-sm m-1 draw-option" for="apoio-movel">
+                                <input type="radio" name="options" id="apoio-movel" autocomplete="off"> Apoio Móvel
+                            </label>
+                            <label class="btn btn-secondary btn-sm m-1 draw-option" for="apoio-fixo">
+                                <input type="radio" name="options" id="apoio-fixo" autocomplete="off"> Apoio Fixo
+                            </label>
+                            <label class="btn btn-secondary btn-sm m-1 draw-option" for="forcas">
+                                <input type="radio" name="options" id="forcas" autocomplete="off"> Forças
+                            </label>
+                        </div>
+                        <hr class="d-sm-none d-md-block">
                     </div>
-                    <input id="input-linhas" class="form-control" type="number" name="Linhas" placeholder="Ex: 5"
-                        aria-label="Ex: 5" aria-describedby="input-linhas">
                 </div>
-                <button id="gerar-grade" class="btn btn-info" type="button">Gerar Grade</button>
-                <hr>
-                <div class="list-group btn-group-toggle" data-toggle="buttons">
-                    <label class="btn btn-secondary btn-sm m-1 draw-option" for="barra">
-                        <input type="radio" name="options" id="barra" autocomplete="off" checked> Barra
-                    </label>
-                    <label class="btn btn-secondary btn-sm m-1 draw-option" for="apoio-movel">
-                        <input type="radio" name="options" id="apoio-movel" autocomplete="off"> Apoio Móvel
-                    </label>
-                    <label class="btn btn-secondary btn-sm m-1 draw-option" for="apoio-fixo">
-                        <input type="radio" name="options" id="apoio-fixo" autocomplete="off"> Apoio Fixo
-                    </label>
-                    <label class="btn btn-secondary btn-sm m-1 draw-option" for="forcas">
-                        <input type="radio" name="options" id="forcas" autocomplete="off"> Forças
-                    </label>
-                </div>
-
             </div>
-            <div class="col-8 content">
+            <div class="col-sm-12 col-md-8 col-lg-9 mb-sm-5 mb-md-0 mb-lg-0 content">
                 <div id="draw-animation"></div>
             </div>
         </div>
