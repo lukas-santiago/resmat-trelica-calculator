@@ -29,19 +29,44 @@
                             <input id="input-linhas" class="form-control" type="number" name="Linhas"
                                 placeholder="Ex: 5" aria-label="Ex: 5" aria-describedby="input-linhas">
                         </div>
+                        <div class="input-group mb-2">
+                            <div class="input-group-append">
+                                <span class="input-group-text">Máx. Ver. (m)</span>
+                            </div>
+                            <input id="input-linhas" class="form-control" type="number" name="Linhas"
+                                data-toggle="tooltip" data-placement="top"
+                                title="Máximo tamanho na vertical em metros (m)" placeholder="Ex: 5" aria-label="Ex: 5"
+                                aria-describedby="input-linhas">
+                        </div>
+                        <div class="input-group mb-2">
+                            <div class="input-group-append">
+                                <span class="input-group-text">Máx. Hor. (m)</span>
+                            </div>
+                            <input id="input-linhas" class="form-control" type="number" name="Linhas"
+                                data-toggle="tooltip" data-placement="top"
+                                title="Máximo tamanho na horizontal em metros (m)" placeholder="Ex: 5"
+                                aria-label="Ex: 5" aria-describedby="input-linhas">
+                        </div>
                         <button id="gerar-grade" class="btn btn-info" type="button">Gerar Grade</button>
                         <hr class="d-sm-none d-md-block">
                     </div>
                     <div class="col-sm-6 col-md-12">
                         <div class="list-group btn-group-toggle" data-toggle="buttons">
-                            <label class="btn btn-secondary btn-sm m-1 draw-option" for="barra">
+                            <label class="btn btn-secondary btn-sm m-1 draw-option" for="barra" data-toggle="tooltip"
+                                data-placement="top" title="Escolha dois pontos na grade para gerar a barra">
                                 <input type="radio" name="options" id="barra" autocomplete="off" checked> Barra
                             </label>
-                            <label class="btn btn-secondary btn-sm m-1 draw-option" for="apoio-movel">
-                                <input type="radio" name="options" id="apoio-movel" autocomplete="off"> Apoio Móvel
+                            <label class="btn btn-secondary btn-sm m-1 draw-option" for="apoio-movel"
+                                data-toggle="tooltip" data-placement="top"
+                                title="Escolha um ponto na grade para gerar o apoio, somente um poderá ser criado">
+                                <input type="radio" name="options" id="apoio-movel" autocomplete="off">
+                                Apoio Móvel
                             </label>
-                            <label class="btn btn-secondary btn-sm m-1 draw-option" for="apoio-fixo">
-                                <input type="radio" name="options" id="apoio-fixo" autocomplete="off"> Apoio Fixo
+                            <label class="btn btn-secondary btn-sm m-1 draw-option" for="apoio-fixo"
+                                data-toggle="tooltip" data-placement="top"
+                                title="Escolha um ponto na grade para gerar o apoio, somente um poderá ser criado">
+                                <input type="radio" name="options" id="apoio-fixo" autocomplete="off">
+                                Apoio Fixo
                             </label>
                             <label class="btn btn-secondary btn-sm m-1 draw-option" for="forcas">
                                 <input type="radio" name="options" id="forcas" autocomplete="off"> Forças
@@ -57,6 +82,7 @@
         </div>
 
     </div>
+    <script src="./assets/plugins/popper.min.js"></script>
     <script src="./assets/plugins/jquery.min.js"></script>
     <script src="./assets/plugins/bootstrap.min.js"></script>
     <script type="module" src="script.js"></script>

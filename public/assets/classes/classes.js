@@ -1,10 +1,22 @@
 class Point {
-    constructor(x, y) {
+    constructor(x, y, intersectionGroup) {
         this._x = x
         this._y = y
+        this._intersectionGroup = intersectionGroup
+        this._isUsed = false
+        this.drawSelf()
+        return this
     }
     get x() { return this._x }
     get y() { return this._y }
+    get isUsed() { return this._isUsed }
+
+    drawSelf() { 
+        this.circle = two.makeCircle(this._x, this._y, 6)
+        this.id = this.circle.id
+        this._intersectionGroup.add(this.circle)
+        return this.circle
+    }
 }
 
 class FixedSupport {
@@ -66,22 +78,44 @@ class Grid {
         this.intersectionGroup = intersectionGroup
         this.columns = columns
         this.lines = lines
-        this.drawGrid(this.two, this.gridGroup, this.intersectionGroup)
+        this.draw(two, gridGroup, intersectionGroup)
         two.update()
     }
-    drawGrid(two, gridGroup, intersectionGroup) {
+    draw(two, gridGroup, intersectionGroup) {
+        this.rulerGroup = two.makeGroup()
+        this.gridLinesGroup = two.makeGroup()
+        gridGroup.add(this.rulerGroup)
+        gridGroup.add(this.gridLinesGroup)
+
+        this.drawGrid(two, intersectionGroup)
+
+
+        this.drawRuller(two)
+    }
+    drawRuller(two) {
+        this.rulerGroup.add(two.makeLine(0, -30, two.width, -30))
+
         for (let x = 0; x <= two.width; x += two.width / this.columns) {
-            gridGroup.add(two.makeLine(x, 0, x, two.height))
+            this.rulerGroup.add(two.makeLine(x, -25, x, -35))
+        }
+
+        this.rulerGroup.add(two.makeLine(two.width + 30, 0, two.width + 30, two.height))
+
+        for (let y = 0; y <= two.height; y += two.height / this.lines) {
+            this.rulerGroup.add(two.makeLine(two.width + 25, y, two.width + 35, y))
+        }
+
+    }
+
+    drawGrid(two, intersectionGroup) {
+        for (let x = 0; x <= two.width; x += two.width / this.columns) {
+            this.gridLinesGroup.add(two.makeLine(x, 0, x, two.height))
         }
         for (let y = 0; y <= two.height; y += two.height / this.lines) {
-            gridGroup.add(two.makeLine(0, y, two.width, y))
-        }
-        for (let x = 0; x <= two.width; x += two.width / this.columns) {
-            for (let y = 0; y <= two.height; y += two.height / this.lines) {
-                intersectionGroup.add(two.makeCircle(x, y, 6))
-            }
+            this.gridLinesGroup.add(two.makeLine(0, y, two.width, y))
         }
     }
+
     destroy() {
         this.two.remove(this.gridGroup.children)
         this.two.remove(this.intersectionGroup.children)
