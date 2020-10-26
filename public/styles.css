@@ -56,7 +56,7 @@ button {
   width: 80%;
   height: 80%;
   user-select: none;
-  border: solid black 1px;
+  /* border: solid black 1px; */
 }
 
 .intersection path:hover {
