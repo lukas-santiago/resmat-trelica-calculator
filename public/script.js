@@ -42,10 +42,10 @@ $(function () {
       }
       console.log(allPoints);
     }
-    two.bind('render', function(a, b) {
+    two.bind('render', function (a, b) {
       allPoints.forEach(point => {
         if (typeof point.svg !== point.circle._renderer.elem) {
-          point.svg = point.circle._renderer.elem          
+          point.svg = point.circle._renderer.elem
         }
       });
     })
@@ -57,7 +57,7 @@ $(function () {
     switch ($('.draw-option.active').attr('for')) {
       case 'barra':
         if (!fromPoint) {
-          fromPoint = allPoints.find( p => p.id == e.target.id)
+          fromPoint = allPoints.find(p => p.id == e.target.id)
           $(fromPoint.svg).addClass('clicked')
         }
         else if (!toPoint && e.target.id == fromPoint.id) {
@@ -65,9 +65,10 @@ $(function () {
           fromPoint = null
         }
         else if (!toPoint && e.target.id != fromPoint.id && allBars.length < 15) {
-          toPoint = allPoints.find( p => p.id == e.target.id)
-
-          allBars.push(new Bar(two, barsGroup, fromPoint, toPoint))
+          toPoint = allPoints.find(p => p.id == e.target.id)
+          if (!allBars.find(p => p.fromPoint == fromPoint && p.toPoint == toPoint)) {
+            allBars.push(new Bar(two, barsGroup, fromPoint, toPoint))
+          }
           $(fromPoint.svg).removeClass('clicked')
           $(toPoint.svg).removeClass('clicked')
           fromPoint = null
@@ -120,7 +121,7 @@ $(function () {
   })
 
 
-  
+
 
 })
 

@@ -42,7 +42,6 @@ class Point {
         this._tag = 'a'
 
         for (let i = 0; i < Point.usedQuantity; i++) {
-            console.log(this._tag)
             this._tag = ((parseInt(this._tag, 36) + 1).toString(36)).replace(/0/g, 'a')
         }
 
@@ -75,6 +74,9 @@ class FixedSupport {
         }
         this.fixedSupport.add(path1)
         two.update()
+    }
+    moveTo(point) {
+        
     }
 }
 
