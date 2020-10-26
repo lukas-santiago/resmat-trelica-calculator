@@ -1,14 +1,23 @@
 import Two from "./assets/plugins/two.module.js"
 import { Point, FixedSupport, MobileSupport, Grid, Bar } from "./assets/classes/classes.js"
 
+window.Point = Point
+window.FixedSupport = FixedSupport
+window.MobileSupport = MobileSupport
+window.Grid = Grid
+window.Bar = Bar
+
+
 var fromPoint = null
 var toPoint = null
-var allBars = []
-var allPoints = []
-var fixedSupport = null
-var mobileSupport = null
-var forcePoint = null
-var grid = null
+
+
+// var allBars = [] //! --> static
+var allPoints = [] //! --> static
+var allForces = null //! --> static
+var fixedSupport = null //! --> static
+var mobileSupport = null //! --> static
+var grid = null //! --> static
 
 window.onresize = function (event) {
 
@@ -27,6 +36,7 @@ window.onresize = function (event) {
 
 $(function () {
   $('[data-toggle="tooltip"]').tooltip()
+
   $(document).on('click', '#gerar-grade', function () {
     clearVariables()
     initializeTwo()
@@ -37,13 +47,13 @@ $(function () {
       grid = new Grid(two, gridGroup, intersectionGroup, colunas, linhas)
       for (let x = 0; x <= two.width; x += two.width / colunas) {
         for (let y = 0; y <= two.height; y += two.height / linhas) {
-          allPoints.push(new Point(x, y, intersectionGroup, textGroup))
+          new Point(x, y, intersectionGroup, textGroup)
         }
       }
-      console.log(allPoints);
+      console.log(Point.allPoints);
     }
     two.bind('render', function (a, b) {
-      allPoints.forEach(point => {
+      Point.allPoints.forEach(point => {
         if (typeof point.svg !== point.circle._renderer.elem) {
           point.svg = point.circle._renderer.elem
         }
@@ -57,61 +67,41 @@ $(function () {
     switch ($('.draw-option.active').attr('for')) {
       case 'barra':
         if (!fromPoint) {
-          fromPoint = allPoints.find(p => p.id == e.target.id)
+          fromPoint = Point.allPoints.find(p => p.id == e.target.id)
           $(fromPoint.svg).addClass('clicked')
         }
         else if (!toPoint && e.target.id == fromPoint.id) {
           $(fromPoint.svg).removeClass('clicked')
           fromPoint = null
         }
-        else if (!toPoint && e.target.id != fromPoint.id && allBars.length < 15) {
-          toPoint = allPoints.find(p => p.id == e.target.id)
-          if (!allBars.find(p => p.fromPoint == fromPoint && p.toPoint == toPoint)) {
-            allBars.push(new Bar(two, barsGroup, fromPoint, toPoint))
+        else if (!toPoint && e.target.id != fromPoint.id && Bar.allBars.length < 15) {
+          toPoint = Point.allPoints.find(p => p.id == e.target.id)
+          if (!Bar.allBars.find(p => p.fromPoint == fromPoint && p.toPoint == toPoint)) {
+            new Bar(two, barsGroup, fromPoint, toPoint)
           }
           $(fromPoint.svg).removeClass('clicked')
           $(toPoint.svg).removeClass('clicked')
           fromPoint = null
           toPoint = null
-          console.log(allBars);
+          console.log(Bar.allBars);
           return false
         }
         else {
           fromPoint ? $(fromPoint.svg).removeClass('clicked') : false
           toPoint ? $(toPoint.svg).removeClass('clicked') : false
         }
-        // if (!fromPoint) {
-        //   fromPoint = e.target
-        //   $(fromPoint).addClass('clicked')
-        // }
-        // else if (!toPoint && e.target == fromPoint) {
-        //   $(fromPoint).removeClass('clicked')
-        //   fromPoint = null
-        // }
-        // else if (!toPoint && e.target != fromPoint && allBars.length < 15) {
-        //   toPoint = e.target
-
-        //   allBars.push(new Bar(two, barsGroup, fromPoint, toPoint))
-        //   $(fromPoint).removeClass('clicked')
-        //   $(toPoint).removeClass('clicked')
-        //   fromPoint = null
-        //   toPoint = null
-        //   console.log(allBars);
-        //   return false
-        // }
-        // else {
-        //   fromPoint ? $(fromPoint).removeClass('clicked') : false
-        //   toPoint ? $(toPoint).removeClass('clicked') : false
-        // }
         break;
       case 'apoio-fixo':
         if (!fixedSupport) {
-          fixedSupport = new FixedSupport(allPoints.find(p => p.id == e.target.id), two, supportsGroup)
-        }
+          fixedSupport = new FixedSupport(Point.allPoints.find(p => p.id == e.target.id), two, supportsGroup)
+        } 
+        // else {
+        //   fixedSupport.moveTo(Point.allPoints.find(p => p.id == e.target.id))
+        // }
         break;
       case 'apoio-movel':
         if (!mobileSupport) {
-          mobileSupport = new MobileSupport(allPoints.find(p => p.id == e.target.id), two, supportsGroup)
+          mobileSupport = new MobileSupport(Point.allPoints.find(p => p.id == e.target.id), two, supportsGroup)
         }
         break;
       default:
@@ -119,9 +109,6 @@ $(function () {
         break;
     }
   })
-
-
-
 
 })
 
@@ -152,17 +139,14 @@ var initializeTwo = function () {
   document.querySelector('svg').style.overflow = 'inherit'
 }
 
-var afterUpdate = function () {
-
-}
 function clearVariables() {
   fromPoint = null
   toPoint = null
-  allBars = []
-  allPoints = []
+  Bar.allBars = []
+  Point.allPoints = []
   fixedSupport = null
   mobileSupport = null
-  forcePoint = null
+  allForces = null
   grid = null
 }
 

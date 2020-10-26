@@ -4,22 +4,34 @@ import Two from '../plugins/two.module.js'
 // ! implementar a descoberta do seno e cosseno das barras direto na classe
 class Point {
     constructor(x, y, intersectionGroup, textGroup) {
+        //* Variables declaration
         this._x = x
         this._y = y
         this._intersectionGroup = intersectionGroup
         this._textGroup = textGroup
         this._isUsed = false
-        this._isFreeze = false
-        this.drawSelf()
+        this._isFreezed = false
+
+        //* Static Variables declaration
         Point.quantity++
+        Point.allPoints.push(this)
+
+        //* Drawing
+        this.drawSelf()
+
         return this
     }
+
+    //* Getters
     get x() { return this._x }
     get y() { return this._y }
     get isUsed() { return this._isUsed }
+    get isFreezed() { return this._isUsed }
 
+    //* Static
     static quantity = 0
     static usedQuantity = 0
+    static allPoints = []
 
     drawSelf() {
         this.circle = two.makeCircle(this._x, this._y, 6)
@@ -28,21 +40,9 @@ class Point {
         this.svg = this.circle._renderer.elem
         return this.circle
     }
-
-    usePoint() {
-        if (!this._isUsed) {
-            this._isUsed = true
-            this.drawText()
-
-            this.circle.fill = 'red'
-
-            two.update()
-        }
-    }
-
     drawText() {
         this._tag = 'a'
-
+        //* Pula uma letra a frente baseado em quanto pontos existem
         for (let i = 0; i < Point.usedQuantity; i++) {
             this._tag = ((parseInt(this._tag, 36) + 1).toString(36)).replace(/0/g, 'a')
         }
@@ -53,9 +53,19 @@ class Point {
         this.text.classList.push('svg-text')
         this._textGroup.add(this.text)
     }
-    freezePoint () {
-        if (!this._isUsed && !this._isFreeze) {
-            this._isFreeze = true
+    usePoint() {
+        if (!this._isUsed && !this.isFreezed) {
+            this._isUsed = true
+            this.drawText()
+
+            this.circle.fill = 'red'
+
+            two.update()
+        }
+    }
+    freezePoint() {
+        if (!this._isUsed && !this._isFreezed) {
+            this._isFreezed = true
 
             this.circle.fill = 'yellow'
 
@@ -66,37 +76,61 @@ class Point {
 
 class FixedSupport {
     constructor(point, two, supportsGroup) {
-        if (point instanceof Point && two instanceof Two) {
-            this.point = point
-            this.drawSelf(two, supportsGroup)
+        //* Parameter Validation
+        if (!point instanceof Point && !two instanceof Two) {
+            throw new Error('Construtor inválido')
         }
+
+        //* Variables declaration
+        this.point = point
+        this.drawSelf(two, supportsGroup)
+
+        //* Static Variables declaration
+        FixedSupport.fixedSupport = this
+
+        return this
     }
     drawSelf(two, supportsGroup) {
-        this.fixedSupport = supportsGroup.add(two.makeGroup())
-        let px = this.point.x
-        let py = this.point.y
+        this.fixedSupportGroup = supportsGroup.add(two.makeGroup())
+        this.graphics = {}
 
-        let path1 = two.makePath(px, py, px + 15, py + 15, px - 15, py + 15, false)
-        path1.fill = '#CCC'
+        let px = this.point.x, py = this.point.y
 
+        this.graphics.path = two.makePath(px, py, px + 15, py + 15, px - 15, py + 15, false)
+        this.graphics.path.fill = '#CCC'
+        this.graphics.lines = []
         for (let x = px; x <= px + 30; x += 3) {
             let line = two.makeLine(x - 15, py + 15, x - 18, py + 23)
-            this.fixedSupport.add(line)
+            this.fixedSupportGroup.add(line)
+            this.graphics.lines.push(line)
         }
-        this.fixedSupport.add(path1)
+        this.fixedSupportGroup.add(this.graphics.path)
         two.update()
     }
     moveTo(point) {
-
+        //! QUEBRADO
+        if (!point instanceof Point) {
+            throw new Error('Parâmetro inválido')
+        }
+        FixedSupport.fixedSupport.graphics.path.translation.set(point.x, point.y)
+        FixedSupport.fixedSupport.graphics.lines.forEach(line => {
+            line.translation.set(point.x, point.y)
+        });
+        two.update()
     }
+    static fixedSupport = null
 }
 
 class MobileSupport {
     constructor(point, two, supportsGroup) {
-        if (point instanceof Point && two instanceof Two) {
-            this.point = point
-            this.drawSelf(two, supportsGroup)
+        if (!point instanceof Point && !two instanceof Two) {
+            throw new Error('Construtor inválido')
         }
+        this.point = point
+        this.drawSelf(two, supportsGroup)
+
+        MobileSupport.fixedSupport = this
+        return this
     }
     drawSelf(two, supportsGroup) {
         this.mobileSupport = supportsGroup.add(two.makeGroup())
@@ -117,6 +151,8 @@ class MobileSupport {
         this.mobileSupport.add(circle2)
         two.update()
     }
+
+    static mobileSupport = null
 }
 
 class Grid {
@@ -128,8 +164,9 @@ class Grid {
         this.lines = lines
         this.draw(two, gridGroup, intersectionGroup)
 
-        Grid.colunas = this.columns
+        Grid.columns = this.columns
         Grid.lines = this.lines
+        Grid.grid = this
 
         two.update()
     }
@@ -179,6 +216,7 @@ class Grid {
 
     static colunas = 0
     static linhas = 0
+    static grid = null
 }
 
 class Bar {
@@ -194,15 +232,54 @@ class Bar {
         this.fromPoint.usePoint()
         this.toPoint.usePoint()
 
+        this.freezeInsideBarPoints(two)
+
+        Bar.allBars.push(this)
+        return this
+    }
+
+    freezeInsideBarPoints(two) {
         let fp = this.fromPoint.circle.position
         let tp = this.toPoint.circle.position
-        for (let x = fp.x; x <= tp.x; x += two.width / Grid.columns) {
-            for (let y = fp.y; y <= tp.y; y += two.height / Grid.lines) {
-                
-            }
+        let apx = fp.x
+        let apy = fp.y
+        // this.getDirection(fp, tp)
+
+        let widthDistance = two.width / Grid.columns
+        let heightDistance = two.height / Grid.lines
+
+        while (apx == tp.x && apy == tp) {
+            if (apx != tp.x)
+                apx < tp.x ? apx += widthDistance : apx -= widthDistance
+            if (apy != tp.y)
+                apy < tp.y ? apy += heightDistance : apy -= heightDistance
+            let point = Point.allPoints.find(p => p.x === apx && p.y === apy)
+            console.log(point);
+            point.freezePoint()
         }
 
-        return this
+        // console.log(fp, tp)
+        // console.log(two.width / Grid.columns, two.height / Grid.lines)
+        // //! ESSE FOR SOMENTE LÊ PARA O LADO DIRETO
+        // for (let x = fp.x; x <= tp.x; x += two.width / Grid.columns) {
+        //     for (let y = fp.y; y <= tp.y; y += two.height / Grid.lines) {
+        //         // Point.allPoints.find(p => p.x === x && p.y === y).freezePoint()
+        //         // console.log(x, y)
+        //     }
+        // }
+    }
+
+    getDirection(fp, tp) {
+        if (fp.x < tp.x && fp.y == tp.y) {
+            console.log('para direita');
+        } else if (fp.x > tp.x && fp.y == tp.y) {
+            console.log('para esquerda');
+        } else if (fp.x == tp.x && fp.y > tp.y) {
+            console.log('para cima');
+        } else if (fp.x == tp.x && fp.y < tp.y)
+            console.log('para baixo');
+
+        // debugger
     }
 
     drawBar(two, barsGroup) {
@@ -216,6 +293,8 @@ class Bar {
 
         barsGroup.add(this.line)
     }
+
+    static allBars = []
 }
 
 export { Point, FixedSupport, MobileSupport, Grid, Bar }
