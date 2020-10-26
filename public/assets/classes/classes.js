@@ -182,7 +182,7 @@ class Bar {
         let to = this.toPoint.circle.position
 
         this.line = two.makeLine(from.x, from.y, to.x, to.y)
-        this.line.stroke = '#333333'
+        this.line.stroke = '#333333EE'
         // this.line.opacity = 0.75
         this.line.linewidth = 10
 
