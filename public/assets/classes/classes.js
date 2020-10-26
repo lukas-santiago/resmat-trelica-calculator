@@ -9,8 +9,8 @@ class Point {
         this._intersectionGroup = intersectionGroup
         this._textGroup = textGroup
         this._isUsed = false
+        this._isFreeze = false
         this.drawSelf()
-
         Point.quantity++
         return this
     }
@@ -52,6 +52,15 @@ class Point {
         this.text = two.makeText(this._tag.toLocaleUpperCase(), this.x - 15, this.y - 12)
         this.text.classList.push('svg-text')
         this._textGroup.add(this.text)
+    }
+    freezePoint () {
+        if (!this._isUsed && !this._isFreeze) {
+            this._isFreeze = true
+
+            this.circle.fill = 'yellow'
+
+            two.update()
+        }
     }
 }
 
@@ -118,6 +127,10 @@ class Grid {
         this.columns = columns
         this.lines = lines
         this.draw(two, gridGroup, intersectionGroup)
+
+        Grid.colunas = this.columns
+        Grid.lines = this.lines
+
         two.update()
     }
     draw(two, gridGroup, intersectionGroup) {
@@ -163,6 +176,9 @@ class Grid {
         this.destroy()
         this.drawGrid(this.two, this.gridGroup, this.intersectionGroup)
     }
+
+    static colunas = 0
+    static linhas = 0
 }
 
 class Bar {
@@ -177,6 +193,14 @@ class Bar {
 
         this.fromPoint.usePoint()
         this.toPoint.usePoint()
+
+        let fp = this.fromPoint.circle.position
+        let tp = this.toPoint.circle.position
+        for (let x = fp.x; x <= tp.x; x += two.width / Grid.columns) {
+            for (let y = fp.y; y <= tp.y; y += two.height / Grid.lines) {
+                
+            }
+        }
 
         return this
     }
