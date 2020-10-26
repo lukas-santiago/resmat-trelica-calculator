@@ -1,5 +1,7 @@
 import Two from '../plugins/two.module.js'
-
+// ! descobrir os pontos embaixo das barras por posição
+// ! nesses pontos, pintar de amarelo
+// ! implementar a descoberta do seno e cosseno das barras direto na classe
 class Point {
     constructor(x, y, intersectionGroup, textGroup) {
         this._x = x
@@ -76,7 +78,7 @@ class FixedSupport {
         two.update()
     }
     moveTo(point) {
-        
+
     }
 }
 
