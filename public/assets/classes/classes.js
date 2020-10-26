@@ -1,21 +1,56 @@
+import Two from '../plugins/two.module.js'
+
 class Point {
-    constructor(x, y, intersectionGroup) {
+    constructor(x, y, intersectionGroup, textGroup) {
         this._x = x
         this._y = y
         this._intersectionGroup = intersectionGroup
+        this._textGroup = textGroup
         this._isUsed = false
         this.drawSelf()
+
+        Point.quantity++
         return this
     }
     get x() { return this._x }
     get y() { return this._y }
     get isUsed() { return this._isUsed }
 
-    drawSelf() { 
+    static quantity = 0
+    static usedQuantity = 0
+
+    drawSelf() {
         this.circle = two.makeCircle(this._x, this._y, 6)
         this.id = this.circle.id
         this._intersectionGroup.add(this.circle)
+        this.svg = this.circle._renderer.elem
         return this.circle
+    }
+
+    usePoint() {
+        if (!this._isUsed) {
+            this._isUsed = true
+            this.drawText()
+
+            this.circle.fill = 'red'
+
+            two.update()
+        }
+    }
+
+    drawText() {
+        this._tag = 'a'
+
+        for (let i = 0; i < Point.usedQuantity; i++) {
+            console.log(this._tag)
+            this._tag = ((parseInt(this._tag, 36) + 1).toString(36)).replace(/0/g, 'a')
+        }
+
+        Point.usedQuantity++
+
+        this.text = two.makeText(this._tag.toLocaleUpperCase(), this.x - 15, this.y - 12)
+        this.text.classList.push('svg-text')
+        this._textGroup.add(this.text)
     }
 }
 
@@ -128,22 +163,30 @@ class Grid {
 
 class Bar {
     constructor(two, barsGroup, fromPoint, toPoint) {
+        if (!fromPoint instanceof Point && !toPoint instanceof Point)
+            throw new error('Cannot Create Bar')
+
         this.fromPoint = fromPoint
         this.toPoint = toPoint
-
-        let from = two.scene.getById(fromPoint.id)
-        let to = two.scene.getById(toPoint.id)
-
-        var line = two.makeLine(from.position.x, from.position.y, to.position.x, to.position.y)
-
-        line.fill = 'rgb(0, 200, 255)'
-        line.opacity = 0.75
-        line.linewidth = 10
-
-        barsGroup.add(line)
+        this.drawBar(two, barsGroup)
         two.update()
 
-        return line
+        this.fromPoint.usePoint()
+        this.toPoint.usePoint()
+
+        return this
+    }
+
+    drawBar(two, barsGroup) {
+        let from = this.fromPoint.circle.position
+        let to = this.toPoint.circle.position
+
+        this.line = two.makeLine(from.x, from.y, to.x, to.y)
+        this.line.stroke = '#333333'
+        // this.line.opacity = 0.75
+        this.line.linewidth = 10
+
+        barsGroup.add(this.line)
     }
 }
 
