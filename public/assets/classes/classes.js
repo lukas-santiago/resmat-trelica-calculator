@@ -248,15 +248,16 @@ class Bar {
         let widthDistance = two.width / Grid.columns
         let heightDistance = two.height / Grid.lines
 
-        while (apx == tp.x && apy == tp) {
-            if (apx != tp.x)
-                apx < tp.x ? apx += widthDistance : apx -= widthDistance
-            if (apy != tp.y)
-                apy < tp.y ? apy += heightDistance : apy -= heightDistance
-            let point = Point.allPoints.find(p => p.x === apx && p.y === apy)
-            console.log(point);
-            point.freezePoint()
-        }
+
+        // while (apx != tp.x && apy != tp) {
+        //     if (apx != tp.x)
+        //         apx < tp.x ? apx += widthDistance : apx -= widthDistance
+        //     if (apy != tp.y)
+        //         apy < tp.y ? apy += heightDistance : apy -= heightDistance
+        //     let point = Point.allPoints.find(p => p.x === apx && p.y === apy)
+        //     console.log(point);
+        //     point.freezePoint()
+        // }
 
         // console.log(fp, tp)
         // console.log(two.width / Grid.columns, two.height / Grid.lines)
@@ -295,6 +296,55 @@ class Bar {
     }
 
     static allBars = []
+}
+
+class Nodo {
+    constructor(row, col, text = null) {
+        this.value = text
+        return this
+    }
+    createTop(nodo) { this.up = nodo }
+    createBottom(nodo) { this.down = nodo }
+    createLeft(nodo) { this.left = nodo }
+    createRight(nodo) { this.right = nodo }
+    createTopLeft(nodo) { this.topLeft = nodo }
+    createTopRight(nodo) { this.topRight = nodo }
+    createBottomLeft(nodo) { this.bottomLeft = nodo }
+    createBottomRight(nodo) { this.bottomRight = nodo }
+}
+
+class Matriz {
+    constructor(columns, rows) {
+        this.columns = columns
+        this.rows = rows
+        this.grid = null //* new Grid
+        this.nodes = []
+        this.createNodes()
+    }
+
+    createNodes() {
+        for (let row = 1; row <= this.rows; row++) {
+            for (let col = 1; col <= this.columns; col++) {
+                //* col, row -> coordinate of matriz
+                this.nodes.push(new Nodo(row, col, ` (${row}-${col}) `))
+            }
+        }
+    }
+    toString() {
+        for (let row = 1; row <= this.rows; row++) {
+            let rowText = ''
+            for (let col = 1; col <= this.columns; col++) {
+                //* col, row -> coordinate of matriz
+                rowText += this.nodes[(col - 1) * row].value
+            }
+            console.log(rowText);
+        }
+    }
+    generateRelations() {
+        this.nodes.forEach(e, i, a => {
+            
+        })
+    }
 }
 
 export { Point, FixedSupport, MobileSupport, Grid, Bar }
