@@ -47,9 +47,8 @@ body {
 }
 
 .content {
-  background-color: aquamarine;
+  background-color: #92dcdf;
   padding: 1em;
-  /* min-height: 400px; */
   min-height: 25rem;
   display: grid;
   place-items: center;
@@ -66,19 +65,18 @@ input, select, button {
   width: 80%;
   height: 80%;
   user-select: none;
-  /* border: solid black 1px; */
 }
 
-.intersection path:hover {
-  fill: blue;
+.point-group path:hover {
+  fill: #4099ff;
 }
 
-.intersection path:active {
-  fill: green;
+.point-group path:active {
+  fill: #71de4a;
 }
 
 .clicked {
-  fill: green !important;
+  fill: #63b546 !important;
 }
 
 .svg-text {
@@ -90,4 +88,16 @@ input, select, button {
   stroke: rgb(255, 255, 255);
   stroke-width: 1px;
   paint-order: stroke;
+}
+
+.ruler-text {
+  font-size: 0.7em;
+}
+
+.ruler-text:hover {
+  font-size: 1.2em;
+}
+
+.grid-lines-group:hover {
+  scale: 1.5rem
 }

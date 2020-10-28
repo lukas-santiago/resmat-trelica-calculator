@@ -1,8 +1,11 @@
 class Point {
     static all = []
+    static rendered = false
+    get x() { return (two.width / Grid.columns) * (this.column - 1) }
+    get y() { return (two.height / Grid.rows) * (this.row - 1) }
 
     constructor(column, row) {
-        if (!window.intersectionGroup instanceof Two.Group
+        if (!window.pointGroup instanceof Two.Group
             && !window.textGroup instanceof Two.Group) {
             throw new Error('classe inválida')
         }
@@ -10,16 +13,18 @@ class Point {
         this.column = column
         this.row = row
         Point.all.push(this)
+
+        this.drawSelf()
+
         return this
     }
 
-    get x() {
-        return (two.width / Grid.columns) * this.row
+    drawSelf() {
+        this._twoCircle = two.makeCircle(this.x, this.y, 8)
+        this.id = this._twoCircle.id
+        window.pointGroup.add(this._twoCircle)
+        return this._twoCircle
     }
-    get y() {
-        return (two.height / Grid.rows) * this.row
-    }
-
 }
 
 class Grid {
@@ -39,10 +44,12 @@ class Grid {
 
     drawSelf() {
         Grid.rulerGroup = two.makeGroup()
+        Grid.rulerGroup.className = 'ruler-group'
         gridGroup.add(Grid.rulerGroup)
         this.drawRuler()
 
         Grid.gridLinesGroup = two.makeGroup()
+        Grid.gridLinesGroup.className = 'grid-group'
         gridGroup.add(Grid.gridLinesGroup)
         this.drawGrid()
     }

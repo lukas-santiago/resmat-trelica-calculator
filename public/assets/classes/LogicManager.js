@@ -18,13 +18,24 @@ class LogicManager {
 
         window.grid = new Grid(columns, rows)
 
-        for (let col = 1; col <= columns; col++) {
-            for (let row = 1; row <= rows; row++) {
+        for (let col = 1; col <= columns + 1; col++) {
+            for (let row = 1; row <= rows + 1; row++) {
                 new Point(col, row)
             }
         }
 
         two.update()
+
+        two.bind('render', function () {
+            if (Point.rendered == false) {
+                Point.all.forEach(point => {
+                    if (typeof point.svg !== point._twoCircle._renderer.elem) {
+                        point.svg = point._twoCircle._renderer.elem
+                        Point.rendered = true
+                    }
+                });
+            }
+        })
     }
 
     initializeTwo() {
@@ -39,8 +50,8 @@ class LogicManager {
         window.gridGroup = two.makeGroup()
         window.barsGroup = two.makeGroup()
         window.supportsGroup = two.makeGroup()
-        window.intersectionGroup = two.makeGroup()
-        intersectionGroup.className = "intersection"
+        window.pointGroup = two.makeGroup()
+        window.pointGroup.className = 'point-group'
         window.textGroup = two.makeGroup()
 
         document.querySelector('svg').style.overflow = 'inherit'
@@ -54,7 +65,7 @@ class LogicManager {
         delete window.gridGroup
         delete window.barsGroup
         delete window.supportsGroup
-        delete window.intersectionGroup
+        delete window.pointGroup
         delete window.textGroup
         delete window.two
         delete window.logicManager;

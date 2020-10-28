@@ -89,6 +89,17 @@
     <script src="./assets/plugins/jquery.min.js"></script>
     <script src="./assets/plugins/bootstrap.min.js"></script>
     <script type="module" src="script.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#input-colunas').val(5)
+            $('#input-linhas').val(5)
+            $('#input-vertical').val(5)
+            $('#input-horizontal').val(5)
+            setTimeout(() => {
+                $('#gerar-grade').click()
+            }, 500);
+        })
+    </script>
 </body>
 
 </html>
