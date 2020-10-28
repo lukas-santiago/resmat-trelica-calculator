@@ -181,6 +181,7 @@ class Grid {
 
         this.drawRuller(two)
     }
+
     drawRuller(two) {
         this.rulerGroup.add(two.makeLine(0, -30, two.width, -30))
 
@@ -209,6 +210,7 @@ class Grid {
         this.two.remove(this.gridGroup.children)
         this.two.remove(this.intersectionGroup.children)
     }
+
     reDraw() {
         this.destroy()
         this.drawGrid(this.two, this.gridGroup, this.intersectionGroup)
@@ -297,4 +299,4 @@ class Bar {
     static allBars = []
 }
 
-export { Point, FixedSupport, MobileSupport, Grid, Bar }
+// export { Point, FixedSupport, MobileSupport, Grid, Bar }

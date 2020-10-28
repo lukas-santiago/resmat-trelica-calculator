@@ -121,7 +121,7 @@ var initializeTwo = function () {
     $('#draw-animation').empty()
   }
 
-  var elem = document.getElementById('draw-animation');
+  let elem = document.getElementById('draw-animation');
 
   window.two = new Two({
     width: elem.offsetWidth,
