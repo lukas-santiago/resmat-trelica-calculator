@@ -1,6 +1,7 @@
 import express from "express"
 
 import path from 'path'
+import open from 'open'
 
 import livereload from "livereload"
 import connectLivereload from "connect-livereload"
@@ -20,3 +21,5 @@ app.use(connectLivereload({
 }))
 app.use(express.static('public'))
 app.listen(5555)
+
+open('http://localhost:5555')

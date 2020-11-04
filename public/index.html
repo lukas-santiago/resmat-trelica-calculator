@@ -56,22 +56,22 @@
                                 <label class="btn btn-secondary btn-sm m-1 draw-option" for="barra"
                                     data-toggle="tooltip" data-placement="top"
                                     title="Escolha dois pontos na grade para gerar a barra">
-                                    <input type="radio" name="options" id="barra" autocomplete="off" checked> Barra
+                                    <input type="radio" name="draw-option" id="barra" autocomplete="off" checked> Barra
                                 </label>
                                 <label class="btn btn-secondary btn-sm m-1 draw-option" for="apoio-movel"
                                     data-toggle="tooltip" data-placement="top"
                                     title="Escolha um ponto na grade para gerar o apoio, somente um poderá ser criado">
-                                    <input type="radio" name="options" id="apoio-movel" autocomplete="off">
+                                    <input type="radio" name="draw-option" id="apoio-movel" autocomplete="off">
                                     Apoio Móvel
                                 </label>
                                 <label class="btn btn-secondary btn-sm m-1 draw-option" for="apoio-fixo"
                                     data-toggle="tooltip" data-placement="top"
                                     title="Escolha um ponto na grade para gerar o apoio, somente um poderá ser criado">
-                                    <input type="radio" name="options" id="apoio-fixo" autocomplete="off">
+                                    <input type="radio" name="draw-option" id="apoio-fixo" autocomplete="off">
                                     Apoio Fixo
                                 </label>
                                 <label class="btn btn-secondary btn-sm m-1 draw-option" for="forcas">
-                                    <input type="radio" name="options" id="forcas" autocomplete="off"> Forças
+                                    <input type="radio" name="draw-option" id="forcas" autocomplete="off"> Forças
                                 </label>
                             </div>
                             <hr class="d-sm-none d-md-block">
@@ -89,17 +89,6 @@
     <script src="./assets/plugins/jquery.min.js"></script>
     <script src="./assets/plugins/bootstrap.min.js"></script>
     <script type="module" src="script.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#input-colunas').val(5)
-            $('#input-linhas').val(5)
-            $('#input-vertical').val(5)
-            $('#input-horizontal').val(5)
-            setTimeout(() => {
-                $('#gerar-grade').click()
-            }, 500);
-        })
-    </script>
 </body>
 
 </html>

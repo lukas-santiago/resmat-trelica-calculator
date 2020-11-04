@@ -17,5 +17,7 @@
   "scripts": {
     "live": "nodemon --ext js,html,css --ignore public "
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "open": "^7.3.0"
+  }
 }

@@ -8,27 +8,50 @@ $(() => {
 
   $(document).on('click', '#gerar-grade', function (e) {
 
-    let parameters = {
-      columns: parseInt($('#input-colunas').val()),
-      rows: parseInt($('#input-linhas').val()),
-      verticalDistance: parseInt($('#input-vertical').val()),
-      horizontalDistance: parseInt($('#input-horizontal').val())
-    }
+    let columns = parseInt($('#input-colunas').val()),
+      rows = parseInt($('#input-linhas').val()),
+      widthDistance = parseInt($('#input-horizontal').val()),
+      heightDistance = parseInt($('#input-vertical').val())
 
-    if (parameters.columns > 0 && parameters.rows > 0
-      && parameters.verticalDistance > 0 && parameters.horizontalDistance > 0) {
+
+    if (columns > 0 && rows > 0
+      && heightDistance > 0 && widthDistance > 0) {
 
       if (window.logicManager && window.logicManager instanceof LogicManager) {
         logicManager.destroy()
       }
 
-      window.logicManager = new LogicManager(parameters)
-      logicManager.generateView(parameters.columns, parameters.rows)
+      window.logicManager = new LogicManager()
+      logicManager.generateView(columns, rows,
+        widthDistance, heightDistance)
     }
 
   })
 
-  $(document).on('click', '.intersection', function (e) {
-    LogicManager.intersectionHandler(e)
+  $(document).on('click', '.point-group', function (e) {
+    let mode = $('.draw-option.active').attr('for')
+    switch (mode) {
+      case 'barra':
+        logicManager.barMode(e)
+        break;
+      case 'apoio-fixo':
+        logicManager.fixedSupportMode(e)
+        break;
+      case 'apoio-movel':
+        logicManager.mobileSupportMode(e)
+        break;
+      default:
+        console.error(mode);
+        break;
+    }
   })
+
+  $('#input-colunas').val(5)
+  $('#input-linhas').val(5)
+  $('#input-vertical').val(5)
+  $('#input-horizontal').val(5)
+  setTimeout(() => {
+    $('#gerar-grade').trigger("click")
+    two.update()
+  }, 500);
 })
