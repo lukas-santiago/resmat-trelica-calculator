@@ -42,9 +42,11 @@ class LogicManager {
   initializeTwo() {
     let elem = document.getElementById('draw-animation')
 
+    let size = elem.offsetWidth < elem.offsetHeight ? elem.offsetWidth : elem.offsetHeight
+
     window.two = new Two({
-      width: elem.offsetWidth,
-      height: elem.offsetHeight
+      width: size,
+      height: size
     }).appendTo(elem)
 
     window.grid = null
