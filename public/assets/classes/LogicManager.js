@@ -1,11 +1,14 @@
 import Two from '../plugins/two.module.js'
-import { Grid, Point, Ruler, Bar } from "./classes.js"
+import { Grid, Point, Ruler, Bar, Verifier, FixedSupport, MobileSupport } from "./classes.js"
 
 window.Two = Two
 window.Grid = Grid
 window.Point = Point
 window.Ruler = Ruler
 window.Bar = Bar
+window.FixedSupport = FixedSupport
+window.MobileSupport = MobileSupport
+window.Verifier = Verifier
 
 class LogicManager {
   constructor() {
@@ -116,11 +119,17 @@ class LogicManager {
   }
 
   fixedSupportMode(e) {
-    console.log('fixed');
+    //TODO Necessário mover o suporte
+    if (!FixedSupport.fixedSupport) {
+      new FixedSupport(Point.all.find(p => p.id == e.target.id))
+    }
   }
 
   mobileSupportMode(e) {
-    console.log('mobile');
+    //TODO Necessário mover o suporte
+    if (!MobileSupport.mobileSupport) {
+      new MobileSupport(Point.all.find(p => p.id == e.target.id))
+    }
   }
 }
 
