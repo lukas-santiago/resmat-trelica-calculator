@@ -75,18 +75,22 @@ input, select, button {
   fill: #71de4a;
 }
 
+path.force-point:active {
+  fill: rgb(168, 63, 194);
+}
+
 .clicked {
   fill: #63b546 !important;
 }
 
 .svg-text {
   font-weight: 700;
-  font-size: 15px;
+  font-size: 20px;
   font-family: Arial, Helvetica, sans-serif;
   user-select: none;
   fill: rgba(179, 25, 25);
   stroke: rgb(255, 255, 255);
-  stroke-width: 1px;
+  stroke-width: 2px;
   paint-order: stroke;
 }
 

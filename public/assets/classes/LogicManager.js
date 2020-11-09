@@ -1,5 +1,5 @@
 import Two from '../plugins/two.module.js'
-import { Grid, Point, Ruler, Bar, Verifier, FixedSupport, MobileSupport } from "./classes.js"
+import { Grid, Point, Ruler, Bar, Verifier, FixedSupport, MobileSupport, Force } from "./classes.js"
 
 window.Two = Two
 window.Grid = Grid
@@ -8,6 +8,7 @@ window.Ruler = Ruler
 window.Bar = Bar
 window.FixedSupport = FixedSupport
 window.MobileSupport = MobileSupport
+window.Force = Force
 window.Verifier = Verifier
 
 class LogicManager {
@@ -58,6 +59,7 @@ class LogicManager {
     window.rulerGroup.className = 'ruler-group'
     window.barsGroup = two.makeGroup()
     window.supportsGroup = two.makeGroup()
+    window.forceGroup = two.makeGroup()
     window.pointGroup = two.makeGroup()
     window.pointGroup.className = 'point-group'
     window.textGroup = two.makeGroup()
@@ -72,6 +74,7 @@ class LogicManager {
     delete window.grid
     delete window.gridGroup
     delete window.rulerGroup
+    delete window.forceGroup
     delete window.barsGroup
     delete window.supportsGroup
     delete window.pointGroup
@@ -82,6 +85,8 @@ class LogicManager {
     Grid.all = []
     Point.all = []
     Bar.all = []
+    MobileSupport.mobileSupport = null
+    FixedSupport.fixedSupport = null
 
   }
 
@@ -108,7 +113,7 @@ class LogicManager {
       $(this.to.svg).removeClass('clicked')
       this.from = null
       this.to = null
-      console.log(Bar.all);
+      console.info(Bar.all);
       return false
     }
     //* uncaught condition
@@ -129,6 +134,89 @@ class LogicManager {
     //TODO Necessário mover o suporte
     if (!MobileSupport.mobileSupport) {
       new MobileSupport(Point.all.find(p => p.id == e.target.id))
+    }
+  }
+  forceMode(e) {
+    if (Bar.all.some(b => b.from.id == e.target.id || b.to.id == e.target.id)) {
+      let forcePoint = Point.all.find(p => p.id == e.target.id)
+      $(forcePoint.svg).addClass('force-point')
+      Force.preview = new Force(forcePoint)
+
+      function getMousePos(svg, evt) {
+        var rect = svg.getBoundingClientRect();
+        return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+      }
+
+      function forceMouseUp(e) {
+        if (Force.preview) {
+          if (Force.setPersistent()) {
+
+            let swallconfig = Swal.fire({
+              title: 'Intensidade da força',
+              input: 'text',
+              inputLabel: 'Digite a quantidade em Newtons que será aplicada.',
+              inputPlaceholder: 'Ex: 10000',
+              showCancelButton: true,
+              inputValidator: (value) => {
+                try {
+                  value = parseInt(value)
+                } catch (e) {
+                  return 'É necessário digitar um número.'
+                }
+              }
+            }).then(result => {
+              if (result.isConfirmed) {
+                
+              } ele {
+                
+              }
+            })
+          } else {
+            let timerInterval
+            Swal.fire({
+              icon: 'error',
+              title: 'Não é possível adicionar uma força acima de outra',
+              html: 'Fechamento em <b></b> milisegundos.',
+              timer: 3000,
+              timerProgressBar: true,
+              willOpen: () => {
+                Swal.showLoading()
+                timerInterval = setInterval(() => {
+                  const content = Swal.getContent()
+                  if (content) {
+                    const b = content.querySelector('b')
+                    if (b) {
+                      b.textContent = Swal.getTimerLeft()
+                    }
+                  }
+                }, 100)
+              },
+              willClose: () => {
+                clearInterval(timerInterval)
+              }
+            })
+          }
+        } else {
+          false;
+        }
+
+        $('.content').off('mousemove', forceMouseMove)
+        $('.content').off('mouseup', forceMouseUp)
+        two.update()
+      }
+
+
+      function forceMouseMove(e) {
+        Force.preview.drawSelf(getMousePos($('svg').get()[0], e))
+        two.update()
+      }
+
+      $('.content').on('mouseup', forceMouseUp)
+      $('.content').on('mousemove', forceMouseMove)
+    }
+    else {
+      $('label[for="forcas"]').tooltip('show')
+      setTimeout(() => $('label[for="forcas"]').tooltip('show'), 7000)
     }
   }
 }

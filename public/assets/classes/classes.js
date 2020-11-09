@@ -199,7 +199,7 @@ class Ruler {
         for (let y = 0, row = Grid.rows; y <= two.height + 1; y += two.height / Grid.rows, row--) {
             Ruler.sideRulerGroup.add(two.makeLine(two.width + 25, y, two.width + 35, y))
 
-            let textValue = ((Ruler.heightDistance / Grid.rows) * row).toFixed(2).replace(/([.,]00)|([.,]\d0)$/, "")
+            let textValue = ((Ruler.heightDistance / Grid.rows) * row).toFixed(2)//.replace(/([.,]00)|([.,]\d0)$/, "")
             let textX = two.makeText(textValue == 'Infinity' ? '0' : textValue, two.width + 45, y)
             textX.classList.push('ruler-text')
             Ruler.sideRulerGroup.add(textX)
@@ -215,7 +215,7 @@ class Ruler {
         for (let x = 0, col = 0; x <= two.width + 1; x += two.width / Grid.columns, col++) {
             Ruler.topRulerGroup.add(two.makeLine(x, -25, x, -35))
 
-            let textValue = ((Ruler.widthDistance / Grid.columns) * col).toFixed(2).replace(/([.,]00)|([.,]\d0)$/, "")
+            let textValue = ((Ruler.widthDistance / Grid.columns) * col).toFixed(2)//.replace(/([.,]00)|([.,]\d0)$/, "")
             let textX = two.makeText(textValue == 'Infinity' ? '0' : textValue, x, -45)
             textX.classList.push('ruler-text')
             Ruler.topRulerGroup.add(textX)
@@ -250,7 +250,7 @@ class Bar {
         // pointsThatCanBeInPath.shift()
         let pointsInPath = Point.all.filter(p => this.svg.isPointInStroke(p.svgPoint))
 
-        console.log(pointsInPath);
+        console.info(pointsInPath);
         pointsInPath.forEach(p => p.disablePoint())
 
 
@@ -323,6 +323,7 @@ class FixedSupport {
 
         //* Variables declaration
         this.point = point
+        this.point.usePoint('red', true, true)
         this.drawSelf()
 
         //* Static Variables declaration
@@ -368,6 +369,7 @@ class MobileSupport {
             throw new Error('Construtor inválido')
         }
         this.point = point
+        this.point.usePoint('red', true, true)
         this.drawSelf()
 
         MobileSupport.mobileSupport = this
@@ -396,18 +398,158 @@ class MobileSupport {
     static mobileSupport = null
 }
 
+class Force {
+    static all = []
+    static preview = null
+
+    constructor(from) {
+        if (!from instanceof Point) {
+            throw new Error('Construtor inválido')
+        }
+        this.direction = null
+        this.from = from
+        this.arrowPath = null
+        this.arrowLine = null
+        this.intensity = 0
+
+        return this
+    }
+
+    drawSelf(mousePos) {
+        let from = this.from
+        let { direction } = this.findDirection(mousePos)
+
+        let start = { x: from.x, y: from.y },
+            radius = 8,
+            size = 12,
+            lineSize = 40,
+            vertices = [0, 0, 0],
+            line = { x: from.x, y: from.y }
+
+        switch (direction) {
+            case 'up':
+                start.y -= radius
+                line.y -= lineSize
+                vertices[0] = new Two.Vector(start.x - size, start.y - size)
+                vertices[1] = new Two.Vector(start.x, start.y)
+                vertices[2] = new Two.Vector(start.x + size, start.y - size)
+
+                break
+            case 'down':
+                start.y += radius
+                line.y += lineSize
+                vertices[0] = new Two.Vector(start.x - size, start.y + size)
+                vertices[1] = new Two.Vector(start.x, start.y)
+                vertices[2] = new Two.Vector(start.x + size, start.y + size)
+                break
+            case 'left':
+                start.x -= radius
+                line.x -= lineSize
+                vertices[0] = new Two.Vector(start.x - size, start.y + size)
+                vertices[1] = new Two.Vector(start.x, start.y)
+                vertices[2] = new Two.Vector(start.x - size, start.y - size)
+                break
+            case 'right':
+                start.x += radius
+                line.x += lineSize
+                vertices[0] = new Two.Vector(start.x + size, start.y + size)
+                vertices[1] = new Two.Vector(start.x, start.y)
+                vertices[2] = new Two.Vector(start.x + size, start.y - size)
+                break
+            default:
+                break
+        }
+        if (!this.direction || direction != this.direction) {
+            this.arrowPath ? this.arrowPath.remove() : false
+            this.arrowPath = null
+            this.arrowPath = new Two.Path(vertices, false, false)
+            this.arrowPath.fill = 'transparent'
+            this.arrowPath.linewidth = 4
+            this.arrowPath.stroke = 'rgb(168, 63, 194)'
+
+            this.arrowLine ? this.arrowLine.remove() : false
+            this.arrowLine = null
+            this.arrowLine = new Two.Line(start.x, start.y, line.x, line.y)
+            this.arrowLine.linewidth = 4
+            this.arrowLine.stroke = 'rgb(168, 63, 194)'
+
+            forceGroup.add(this.arrowLine)
+            forceGroup.add(this.arrowPath)
+            this.direction = direction
+        }
+    }
+
+    findDirection(mousePos) {
+        let diffVertical = this.from.y - mousePos.y
+        let diffHorizontal = this.from.x - mousePos.x
+        let direction
+        if (Math.abs(diffVertical) > Math.abs(diffHorizontal)) {
+            diffVertical > 0 ? direction = 'up' : direction = 'down'
+        } else {
+            diffHorizontal > 0 ? direction = 'left' : direction = 'right'
+        }
+        return {
+            vertical: diffVertical,
+            horizontal: diffHorizontal,
+            direction: direction
+        }
+    }
+
+    static setPersistent() {
+        if (!Force.all.some(f => f.from == Force.preview.from && f.direction == Force.preview.direction)) {
+            Force.all.push(Force.preview)
+            Force.preview = null
+            return true
+        }
+        Force.preview = null
+        return false
+    }
+}
+
 class Verifier {
     constructor() {
+        this.VerifyBarPoints()
+        this.VerifyMobileSupport()
+        this.VerifyFixedSupport()
+    }
+    VerifyMobileSupport() {
+        if (MobileSupport.mobileSupport != null) {
+            if (Bar.all.some(b => b.from == MobileSupport.mobileSupport.point || b.to == MobileSupport.mobileSupport.point)) {
+                console.log('Apoio móvel válido')
+            } else {
+                console.log('Apoio móvel inválido por não estar conectado a nenhuma barra')
+            }
+        } else {
+            console.log('Não há apoio móvel')
+        }
+    }
+
+    VerifyFixedSupport() {
+        if (FixedSupport.fixedSupport != null) {
+            if (Bar.all.some(b => b.from == FixedSupport.fixedSupport.point || b.to == FixedSupport.fixedSupport.point)) {
+                console.log('Apoio fixo válido')
+            } else {
+                console.log('Apoio fixo inválido por não estar conectado a nenhuma barra')
+            }
+        } else {
+            console.log('Não há apoio fixo')
+        }
+    }
+
+    VerifyBarPoints() {
         if (Point.all.filter(p => p.used).length
             == Point.all.filter(p => p.objectsIn.bars.length > 1).length)
             console.log('Todas as barras estão conectadas')
-        else
-            console.log('Há barras desconectadas');
 
+        else
+            console.log('Há barras desconectadas')
     }
+
     static getValuesToMath() {
 
     }
 }
 
-export { Point, Grid, Ruler, Bar, FixedSupport, MobileSupport, Verifier }  
+
+
+export { Point, Grid, Ruler, Bar, FixedSupport, MobileSupport, Force, Verifier }  
