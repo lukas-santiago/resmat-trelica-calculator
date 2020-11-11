@@ -167,7 +167,7 @@ class LogicManager {
             }).then(result => {
               if (result.isConfirmed) {
                 
-              } ele {
+              } else {
                 
               }
             })
