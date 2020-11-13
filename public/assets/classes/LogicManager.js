@@ -154,8 +154,8 @@ class LogicManager {
             let swallconfig = Swal.fire({
               title: 'Intensidade da força',
               input: 'text',
-              inputLabel: 'Digite a quantidade em Newtons que será aplicada.',
-              inputPlaceholder: 'Ex: 10000',
+              inputLabel: 'Digite a quantidade em KiloNewtons que será aplicada.',
+              inputPlaceholder: 'Ex: 10',
               showCancelButton: true,
               inputValidator: (value) => {
                 try {
