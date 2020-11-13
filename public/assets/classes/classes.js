@@ -200,7 +200,7 @@ class Ruler {
             Ruler.sideRulerGroup.add(two.makeLine(two.width + 25, y, two.width + 35, y))
 
             let textValue = ((Ruler.heightDistance / Grid.rows) * row).toFixed(2)//.replace(/([.,]00)|([.,]\d0)$/, "")
-            let textX = two.makeText(textValue == 'Infinity' ? '0' : textValue, two.width + 45, y)
+            let textX = two.makeText(textValue == 'Infinity' ? '0' : textValue, two.width + 47, y)
             textX.classList.push('ruler-text')
             Ruler.sideRulerGroup.add(textX)
         }
@@ -415,6 +415,10 @@ class Force {
         return this
     }
 
+    drawText() {
+        
+    }
+
     drawSelf(mousePos) {
         let from = this.from
         let { direction } = this.findDirection(mousePos)
@@ -495,6 +499,12 @@ class Force {
         }
     }
 
+    destroy() {
+        this.arrowPath.remove()
+        this.arrowLine.remove()
+        two.update()
+    }
+
     static setPersistent() {
         if (!Force.all.some(f => f.from == Force.preview.from && f.direction == Force.preview.direction)) {
             Force.all.push(Force.preview)
@@ -511,7 +521,16 @@ class Verifier {
         this.VerifyBarPoints()
         this.VerifyMobileSupport()
         this.VerifyFixedSupport()
+        this.verifyForces()        
     }
+    verifyForces() {
+        if (Force.all.length > 0)
+            console.log(`Há a aplicação de forças externas`)
+
+        else
+            console.log(`Não há a aplicação de forças externas`)
+    }
+
     VerifyMobileSupport() {
         if (MobileSupport.mobileSupport != null) {
             if (Bar.all.some(b => b.from == MobileSupport.mobileSupport.point || b.to == MobileSupport.mobileSupport.point)) {

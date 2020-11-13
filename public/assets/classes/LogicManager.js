@@ -87,6 +87,7 @@ class LogicManager {
     Bar.all = []
     MobileSupport.mobileSupport = null
     FixedSupport.fixedSupport = null
+    Force.all = []
 
   }
 
@@ -159,6 +160,10 @@ class LogicManager {
               showCancelButton: true,
               inputValidator: (value) => {
                 try {
+                  if (value.length > 0)
+                    true
+                  else
+                    throw new Error()
                   value = parseInt(value)
                 } catch (e) {
                   return 'É necessário digitar um número.'
@@ -166,9 +171,10 @@ class LogicManager {
               }
             }).then(result => {
               if (result.isConfirmed) {
-                
+                Force.all[Force.all.length - 1].intesity = result.value
               } else {
-                
+                Force.all[Force.all.length - 1].destroy()
+                Force.all.pop()
               }
             })
           } else {

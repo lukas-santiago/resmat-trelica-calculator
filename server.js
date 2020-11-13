@@ -22,4 +22,4 @@ app.use(connectLivereload({
 app.use(express.static('public'))
 app.listen(5555)
 
-open('http://localhost:5555')
+open('http://localhost:5555/pages/login')
