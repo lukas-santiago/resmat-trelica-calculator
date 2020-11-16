@@ -8,19 +8,19 @@ $(() => {
 
   $(document).on('click', '#gerar-grade', function (e) {
 
-    let columns = parseFloat($('#input-colunas').val()),
+    let columns = parseFloat($('#input-colunas').val()) - 1,
       rows = parseFloat($('#input-linhas').val()),
       widthDistance = parseFloat($('#input-horizontal').val()),
       heightDistance = parseFloat($('#input-vertical').val())
 
-    if (1 > columns || columns > 12) {
-      $('#input-colunas').tooltip({ title: "Somente de 1 a 12", placement: "top", trigger: 'manual' });
+    if (1 > columns || columns > 13) {
+      $('#input-colunas').tooltip({ title: "Somente de 2 a 13", placement: "top", trigger: 'manual' });
       $('#input-colunas').tooltip('show');
       setTimeout(() => $('#input-colunas').tooltip('hide'), 7000)
       return
     }
     if (1 > rows || rows > 12) {
-      $('#input-linhas').tooltip({ title: "Somente de 1 a 12", placement: "top", trigger: 'manual' });
+      $('#input-linhas').tooltip({ title: "Somente de 2 a 13", placement: "top", trigger: 'manual' });
       $('#input-linhas').tooltip('show');
       setTimeout(() => $('#input-linhas').tooltip('hide'), 7000)
       return
@@ -75,6 +75,13 @@ $(() => {
     }
   })
 
+  $(document).on('contextmenu', '.bars-group path', function (e) {
+    e.preventDefault()
+    let bar = Bar.all.find(b => b.svg.id == e.target.id)
+    bar.destroy()
+
+  })
+
 
   $(document).on('mousedown', '.point-group', function (e) {
     let mode = $('.draw-option.active').attr('for')
@@ -91,10 +98,10 @@ $(() => {
 
   })
 
-  $('#input-colunas').val(5)
-  $('#input-linhas').val(5)
-  $('#input-vertical').val(5)
-  $('#input-horizontal').val(5)
+  $('#input-colunas').val(3)
+  $('#input-linhas').val(1)
+  $('#input-vertical').val(2)
+  $('#input-horizontal').val(4)
   setTimeout(() => {
     $('#gerar-grade').trigger("click")
     two.update()

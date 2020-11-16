@@ -43,12 +43,14 @@ body {
 }
 
 .sidebar {
-  background-color: aliceblue;
+  background-color: white;
   padding: 15px;
 }
 
 .content {
-  background-color: #92dcdf;
+  /* background-color: #92dcdf; */
+  /* background-color: #b2cecf; */
+  background-color: #d3e3e4;
   padding: 1.5em;
   min-height: 25rem;
   display: grid;
@@ -99,6 +101,7 @@ path.force-point:active {
 
 .ruler-text {
   font-size: 0.7em;
+  fill: #4a4a4a
 }
 
 .ruler-text:hover {
@@ -107,4 +110,15 @@ path.force-point:active {
 
 .grid-lines-group:hover {
   scale: 1.5rem;
+}
+
+.svg-force {
+  font-weight: bold;
+  font-size: 15px;
+  font-family: Arial, Helvetica, sans-serif;
+  user-select: none;
+  fill: rgb(168, 63, 194);
+  stroke: rgb(255, 255, 255);
+  stroke-width: 1px;
+  paint-order: stroke;
 }

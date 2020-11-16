@@ -23,7 +23,7 @@
                                         <label for="input-colunas">Colunas</label>
                                         <input id="input-colunas" class="form-control" type="number" name="Colunas"
                                             placeholder="Ex: 5" aria-label="Colunas" aria-describedby="input-colunas"
-                                            min="1" max="12">
+                                            min="2" max="13">
                                     </div>
                                 </div>
                                 <div class="col pl-1">
@@ -31,7 +31,7 @@
                                         <label for="input-linhas">Linhas</label>
                                         <input id="input-linhas" class="form-control" type="number" name="Linhas"
                                             placeholder="Ex: 5" aria-label="Ex: 5" aria-describedby="input-linhas"
-                                            min="1" max="12">
+                                            min="2" max="13">
                                     </div>
                                 </div>
                             </div>
@@ -60,7 +60,7 @@
                         <div class="col-sm-6 col-md-12 align-self-sm-end">
                             <div class="list-group btn-group-toggle" data-toggle="buttons">
                                 <label class="btn btn-secondary mb-1 draw-option" for="barra" data-toggle="tooltip"
-                                    data-placement="top" title="Escolha dois pontos na grade para gerar a barra">
+                                    data-placement="top" title="Escolha dois pontos na grade para gerar a barra. Para excluir, clique com o botão direito na barra desejada.">
                                     <input type="radio" name="draw-option" id="barra" autocomplete="off" checked> Barra
                                 </label>
                                 <label class="btn btn-secondary mb-1 draw-option" for="apoio-movel"
@@ -82,7 +82,7 @@
                                 </label>
                             </div>
                             <hr class="d-sm-none d-md-block">
-                            <button class="btn btn-danger" type="button">Calcular</button>
+                            <button class="btn btn-danger" type="button" onclick="new Calculator()">Calcular</button>
                         </div>
                     </div>
                 </div>
@@ -93,6 +93,14 @@
 
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/nerdamer.core.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Algebra.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Calculus.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Extra.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Solve.js"></script>
+
+    <script src="../../assets/plugins/algebra-0.2.6.min.js"></script>
     <script src="../../assets/plugins/sweetalert2.min.js"></script>
     <script src="./../../assets/plugins/popper.min.js"></script>
     <script src="./../../assets/plugins/jquery.min.js"></script>

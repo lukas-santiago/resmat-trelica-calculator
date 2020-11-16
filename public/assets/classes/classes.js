@@ -16,7 +16,8 @@ class Point {
         this.svg = null
         this.objectsIn = {
             bars: [],
-            support: [],
+            mobileSupport: [],
+            fixedSupport: [],
             forces: [],
         }
         this.used = false
@@ -38,6 +39,7 @@ class Point {
 
     drawSelf() {
         this.circle = two.makeCircle(this.x, this.y, 8)
+        this.circle.stroke = '#545b62'
         this.id = this.circle.id
         window.pointGroup.add(this.circle)
         return this.circle
@@ -50,6 +52,22 @@ class Point {
             this.used = used
             two.update()
         }
+    }
+
+    discardPointFromBar(bar) {
+        if (this.objectsIn.bars.length == 1) {
+            this.objectsIn.forces.forEach(f => f.destroy())
+            this.objectsIn.bars = []
+            this.objectsIn.forces = []
+            this.circle.fill = 'white'
+            this.used = false
+            this.text.remove()
+        }
+        else {
+            let barIndex = this.objectsIn.bars.indexOf(bar)
+            this.objectsIn.bars.splice(barIndex, 1)
+        }
+        two.update()
     }
 
     disablePoint() {
@@ -162,10 +180,16 @@ class Grid {
 
     drawGrid() {
         for (let x = 0; x <= two.width + 1; x += two.width / Grid.columns) {
-            Grid.gridLinesGroup.add(two.makeLine(x, 0, x, two.height))
+            let lineX = two.makeLine(x, 0, x, two.height)
+            lineX.linewidth = 1
+            lineX.stroke = '#6c757d'
+            Grid.gridLinesGroup.add(lineX)
         }
         for (let y = 0; y <= two.height + 1; y += two.height / Grid.rows) {
-            Grid.gridLinesGroup.add(two.makeLine(0, y, two.width, y))
+            let lineY = two.makeLine(0, y, two.width, y)
+            lineY.linewidth = 1
+            lineY.stroke = '#6c757d'
+            Grid.gridLinesGroup.add(lineY)
         }
     }
 
@@ -194,10 +218,14 @@ class Ruler {
         Ruler.sideRulerGroup = two.makeGroup()
         rulerGroup.add(Ruler.sideRulerGroup)
 
-        Ruler.sideRulerGroup.add(two.makeLine(two.width + 30, 0, two.width + 30, two.height))
+        let mainLine = two.makeLine(two.width + 30, 0, two.width + 30, two.height)
+        mainLine.stroke = '#545b62'
+        Ruler.sideRulerGroup.add(mainLine)
 
         for (let y = 0, row = Grid.rows; y <= two.height + 1; y += two.height / Grid.rows, row--) {
-            Ruler.sideRulerGroup.add(two.makeLine(two.width + 25, y, two.width + 35, y))
+            let auxLine = two.makeLine(two.width + 25, y, two.width + 35, y)
+            auxLine.stroke = '#545b62'
+            Ruler.sideRulerGroup.add(auxLine)
 
             let textValue = ((Ruler.heightDistance / Grid.rows) * row).toFixed(2)//.replace(/([.,]00)|([.,]\d0)$/, "")
             let textX = two.makeText(textValue == 'Infinity' ? '0' : textValue, two.width + 47, y)
@@ -210,10 +238,14 @@ class Ruler {
         Ruler.topRulerGroup = two.makeGroup()
         rulerGroup.add(Ruler.topRulerGroup)
 
-        Ruler.topRulerGroup.add(two.makeLine(0, -30, two.width, -30))
+        let mainLine = two.makeLine(0, -30, two.width, -30)
+        mainLine.stroke = '#545b62'
+        Ruler.topRulerGroup.add(mainLine)
 
         for (let x = 0, col = 0; x <= two.width + 1; x += two.width / Grid.columns, col++) {
-            Ruler.topRulerGroup.add(two.makeLine(x, -25, x, -35))
+            let auxLine = two.makeLine(x, -25, x, -35)
+            auxLine.stroke = '#545b62'
+            Ruler.topRulerGroup.add(auxLine)
 
             let textValue = ((Ruler.widthDistance / Grid.columns) * col).toFixed(2)//.replace(/([.,]00)|([.,]\d0)$/, "")
             let textX = two.makeText(textValue == 'Infinity' ? '0' : textValue, x, -45)
@@ -228,12 +260,20 @@ class Bar {
     get from() { return this._from }
     get to() { return this._to }
 
+    get strength() { return this._strength }
+    set strength(value) { this._strength = value }
+    get strengthType() { return this._strengthType }
+    set strengthType(value) { this._strengthType = value }
+
     constructor(from, to) {
         if (!from instanceof Point && !to instanceof Point)
             throw new error('Cannot Create Bar')
 
         this._from = from
         this._to = to
+
+        this._strength = 0
+        this._strengthType = ''
 
         this.usePoints(from, to)
         from.objectsIn.bars.push(this)
@@ -250,7 +290,7 @@ class Bar {
         // pointsThatCanBeInPath.shift()
         let pointsInPath = Point.all.filter(p => this.svg.isPointInStroke(p.svgPoint))
 
-        console.info(pointsInPath);
+        // console.info(pointsInPath);
         pointsInPath.forEach(p => p.disablePoint())
 
 
@@ -259,7 +299,7 @@ class Bar {
         Bar.all.push(this)
 
 
-
+        this.name = 'N' + from.letra + to.letra
         return this
     }
 
@@ -287,11 +327,18 @@ class Bar {
         this.line = two.makeLine(from.x, from.y, to.x, to.y)
         this.line.stroke = '#333333EE'
         // this.line.opacity = 0.75
-        this.line.linewidth = 10
+        this.line.linewidth = 7
 
         barsGroup.add(this.line)
     }
 
+    destroy() {
+        this.from.discardPointFromBar(this)
+        this.to.discardPointFromBar(this)
+        this.line.remove()
+        Bar.all.splice(Bar.all.indexOf(this), 1)
+        two.update()
+    }
 
     get angle() {
         let diffRow = (this._to.row - this._from.row) * -1
@@ -322,8 +369,11 @@ class FixedSupport {
         }
 
         //* Variables declaration
+        this.fh = null
+        this.fv = null
         this.point = point
         this.point.usePoint('red', true, true)
+        this.point.objectsIn.fixedSupport.push(this)
         this.drawSelf()
 
         //* Static Variables declaration
@@ -361,6 +411,13 @@ class FixedSupport {
         two.update()
     }
     static fixedSupport = null
+
+    get side() {
+        let m = MobileSupport.mobileSupport
+        if (!m)
+            return null
+        return m.point.x <= this.point.x ? 'right' : 'left'
+    }
 }
 
 class MobileSupport {
@@ -368,8 +425,11 @@ class MobileSupport {
         if (!point instanceof Point) {
             throw new Error('Construtor inválido')
         }
+
+        this.fv = null
         this.point = point
         this.point.usePoint('red', true, true)
+        this.point.objectsIn.mobileSupport.push(this)
         this.drawSelf()
 
         MobileSupport.mobileSupport = this
@@ -396,32 +456,70 @@ class MobileSupport {
     }
 
     static mobileSupport = null
+
+    get side() {
+        let f = FixedSupport.fixedSupport
+        if (!f)
+            return null
+        return f.point.x <= this.point.x ? 'right' : 'left'
+    }
 }
 
 class Force {
     static all = []
     static preview = null
+    get intesity() { return this.direction == 'right' || this.direction == 'up' ? this.strength : this.strength * -1 }
+
 
     constructor(from) {
         if (!from instanceof Point) {
             throw new Error('Construtor inválido')
         }
         this.direction = null
+        this.text = null
+        this.mouseDirection = null
         this.from = from
         this.arrowPath = null
         this.arrowLine = null
-        this.intensity = 0
+        this.strength = 0
 
         return this
     }
 
-    drawText() {
-        
+    drawText(strength) {
+        this.strength = strength
+        let text = this.strength + 'KN'
+        switch (this.mouseDirection) {
+            case 'up':
+                this.text = two.makeText(text, this.from.x + 20, this.from.y - 29)
+                this.text.classList.push('svg-force')
+                textGroup.add(this.text)
+                break;
+            case 'down':
+                this.text = two.makeText(text, this.from.x + 20, this.from.y + 29)
+                this.text.classList.push('svg-force')
+                textGroup.add(this.text)
+                break;
+            case 'left':
+                this.text = two.makeText(text, this.from.x - 50, this.from.y + 15)
+                this.text.classList.push('svg-force')
+                textGroup.add(this.text)
+                break;
+            case 'right':
+                this.text = two.makeText(text, this.from.x + 36, this.from.y + 15)
+                this.text.classList.push('svg-force')
+                break;
+
+            default:
+                break;
+        }
+        textGroup.add(this.text)
+        two.update()
     }
 
     drawSelf(mousePos) {
         let from = this.from
-        let { direction } = this.findDirection(mousePos)
+        let { direction, mouseDirection } = this.findDirection(mousePos)
 
         let start = { x: from.x, y: from.y },
             radius = 8,
@@ -430,7 +528,7 @@ class Force {
             vertices = [0, 0, 0],
             line = { x: from.x, y: from.y }
 
-        switch (direction) {
+        switch (mouseDirection) {
             case 'up':
                 start.y -= radius
                 line.y -= lineSize
@@ -463,22 +561,23 @@ class Force {
             default:
                 break
         }
-        if (!this.direction || direction != this.direction) {
+        if (!this.mouseDirection || mouseDirection != this.mouseDirection) {
             this.arrowPath ? this.arrowPath.remove() : false
             this.arrowPath = null
             this.arrowPath = new Two.Path(vertices, false, false)
             this.arrowPath.fill = 'transparent'
-            this.arrowPath.linewidth = 4
+            this.arrowPath.linewidth = 3
             this.arrowPath.stroke = 'rgb(168, 63, 194)'
 
             this.arrowLine ? this.arrowLine.remove() : false
             this.arrowLine = null
             this.arrowLine = new Two.Line(start.x, start.y, line.x, line.y)
-            this.arrowLine.linewidth = 4
+            this.arrowLine.linewidth = 3
             this.arrowLine.stroke = 'rgb(168, 63, 194)'
 
             forceGroup.add(this.arrowLine)
             forceGroup.add(this.arrowPath)
+            this.mouseDirection = mouseDirection
             this.direction = direction
         }
     }
@@ -486,28 +585,34 @@ class Force {
     findDirection(mousePos) {
         let diffVertical = this.from.y - mousePos.y
         let diffHorizontal = this.from.x - mousePos.x
-        let direction
+        let direction, mouseDirection
         if (Math.abs(diffVertical) > Math.abs(diffHorizontal)) {
-            diffVertical > 0 ? direction = 'up' : direction = 'down'
+            diffVertical > 0 ? mouseDirection = 'up' : mouseDirection = 'down'
+            diffVertical > 0 ? direction = 'down' : direction = 'up'
         } else {
-            diffHorizontal > 0 ? direction = 'left' : direction = 'right'
+            diffHorizontal > 0 ? mouseDirection = 'left' : mouseDirection = 'right'
+            diffHorizontal > 0 ? direction = 'right' : direction = 'left'
         }
         return {
             vertical: diffVertical,
             horizontal: diffHorizontal,
-            direction: direction
+            direction: direction,
+            mouseDirection: mouseDirection
         }
     }
 
     destroy() {
         this.arrowPath.remove()
         this.arrowLine.remove()
+        this.text ? this.text.remove() : false
+        Force.all.splice(Force.all.indexOf(this), 1)
         two.update()
     }
 
     static setPersistent() {
         if (!Force.all.some(f => f.from == Force.preview.from && f.direction == Force.preview.direction)) {
             Force.all.push(Force.preview)
+            Force.preview.from.objectsIn.forces.push(Force.preview)
             Force.preview = null
             return true
         }
@@ -518,57 +623,313 @@ class Force {
 
 class Verifier {
     constructor() {
+        this.messages = []
+        this.error = []
+
         this.VerifyBarPoints()
         this.VerifyMobileSupport()
         this.VerifyFixedSupport()
-        this.verifyForces()        
+        this.verifyForces()
+        this.verifyIsostaticCondition()
+
+        this.messages.forEach(m => console.log('Válido: ' + m))
+        this.error.forEach(m => console.error('Inválido: ' + m))
+
+        return this
     }
     verifyForces() {
         if (Force.all.length > 0)
-            console.log(`Há a aplicação de forças externas`)
+            this.messages.push(`Há a aplicação de forças externas`)
 
         else
-            console.log(`Não há a aplicação de forças externas`)
+            this.messages.push(`Não há a aplicação de forças externas`)
     }
 
     VerifyMobileSupport() {
         if (MobileSupport.mobileSupport != null) {
             if (Bar.all.some(b => b.from == MobileSupport.mobileSupport.point || b.to == MobileSupport.mobileSupport.point)) {
-                console.log('Apoio móvel válido')
+                this.messages.push('Apoio móvel válido')
             } else {
-                console.log('Apoio móvel inválido por não estar conectado a nenhuma barra')
+                this.error.push('Apoio móvel inválido por não estar conectado a nenhuma barra')
             }
         } else {
-            console.log('Não há apoio móvel')
+            this.error.push('Não há apoio móvel')
         }
     }
 
     VerifyFixedSupport() {
         if (FixedSupport.fixedSupport != null) {
             if (Bar.all.some(b => b.from == FixedSupport.fixedSupport.point || b.to == FixedSupport.fixedSupport.point)) {
-                console.log('Apoio fixo válido')
+                this.messages.push('Apoio fixo válido')
             } else {
-                console.log('Apoio fixo inválido por não estar conectado a nenhuma barra')
+                this.error.push('Apoio fixo inválido por não estar conectado a nenhuma barra')
             }
         } else {
-            console.log('Não há apoio fixo')
+            this.error.push('Não há apoio fixo')
         }
     }
 
     VerifyBarPoints() {
-        if (Point.all.filter(p => p.used).length
-            == Point.all.filter(p => p.objectsIn.bars.length > 1).length)
-            console.log('Todas as barras estão conectadas')
+        if (Point.all.filter(p => p.used).length > 0
+            && Point.all.filter(p => p.used).length == Point.all.filter(p => p.objectsIn.bars.length > 1).length)
+            this.messages.push('Todas as barras estão conectadas')
 
         else
-            console.log('Há barras desconectadas')
+            this.error.push('Há barras desconectadas')
     }
 
-    static getValuesToMath() {
+    verifyIsostaticCondition() {
+        let p = Point.all.filter(p => p.used).length
+        let b = Bar.all.length
+        let e = nerdamer('2*p - (b+3)', { p: p, b: b });
+        if (e.text() != "0")
+            this.error.push('não é isoestático')
+        else
+            this.messages.push('é isoestático')
+    }
+}
 
+class Calculator {
+    static matriz = null
+    constructor() {
+        let v = new Verifier()
+        if (v.error.length > 0)
+            throw new Error('Erro')
+
+        // this.calculateHorizontalReaction()
+        // this.calculateBendingMoment()
+
+        Calculator.matriz = null
+        this.calculateForce()
+        Calculator.matriz = this.matriz
+        Calculator.matriz.forEach(row => {
+            let string = ''
+            row.forEach(col => {
+                string += ` ${col} `
+            });
+        });
+
+
+    }
+
+    calculateHorizontalReaction() {
+        this.Ffh // Force fixed support horizontal
+
+        let allFx = Force.all.filter(f => f.direction = 'left' || f.direction == 'right')
+        let sumAllFx = allFx.reduce((accumulator, currentForce) => accumulator + currentForce.intesity, 0)
+        if (FixedSupport.fixedSupport.side === 'right')
+            this.Ffh = allFx == [] ? 0 : sumAllFx
+        else
+            this.Ffh = allFx == [] ? 0 : sumAllFx * -1
+    }
+
+    calculateBendingMoment() {
+        this.Fmv // Force mobile support vertical
+        this.gapY = ((Ruler.heightDistance * 1000) / Grid.rows)
+        this.gapX = ((Ruler.widthDistance * 1000) / Grid.columns)
+
+
+        let Pf = FixedSupport.fixedSupport.point
+        let forcesInPfx = Force.all.filter(f => f.from.column === Pf.column)
+
+        let eq = []
+        forcesInPfx.forEach(f => { return "" })
+
+
+    }
+
+    diffDistance(from, to) {
+        let diffY = null
+        let diffX = null
+        if (from.column == to.column) {
+            diffY = Math.abs((from.row - to.row) * this.gapY)
+        } else {
+            diffX = Math.abs((from.column - to.column) * this.gapX)
+        }
+        return diffY || diffX
+    }
+
+    resultingForceInPoint(point) {
+
+    }
+
+    calculateForce() {
+        let matrizRows = (Point.all.filter(p => p.used).length) * 2
+        let matriz = Array.from(Array(matrizRows), () => new Array(matrizRows + 1))
+
+        for (let r = 0; r < matriz.length; r++) {
+            for (let c = 0; c < matriz[r].length; c++) {
+                matriz[r][c] = 0
+            }
+        }
+
+
+        console.log(matriz);
+
+        let linha = 0, coluna = 0;
+
+        for (let ponto of Point.all.filter(p => p.used)) {
+
+            if (FixedSupport.fixedSupport.point == ponto)// Coloca apoio fixo na matriz
+            {
+                matriz[linha][coluna] = 1;
+                matriz[linha + 1][++coluna] = 1;
+                matriz[linha + 1][++coluna] = 0;
+            } else if (MobileSupport.mobileSupport.point == ponto)// Coloca apoio móvel na matriz
+            {
+                matriz[linha][coluna] = 0;
+                matriz[linha + 1][++coluna] = 0;
+                matriz[linha + 1][++coluna] = 1;
+            } else// Se não for apoio deve pular as colunas dos mesmos
+            {
+                coluna += 2;
+            }
+
+
+            for (let barra of Bar.all) {
+                coluna++;
+                if (barra.from == ponto) {
+                    matriz[linha][coluna] = Math.cos(barra.angle * Math.PI / 180);
+                    matriz[linha + 1][coluna] = Math.sin(barra.angle * Math.PI / 180);
+                }
+                else if (barra.to == ponto) {
+                    // Multiplica-se por -1 pois barras possuem angulos padronizados que vão do ponto inicial para o final
+                    matriz[linha][coluna] = Math.cos(barra.angle * Math.PI / 180) * -1;
+                    matriz[linha + 1][coluna] = Math.sin(barra.angle * Math.PI / 180) * -1;
+                }
+
+            }
+
+            coluna++;
+
+            for (let force of Force.all) {
+                if (force.from == ponto) {
+                    switch (force.direction) {
+                        case 'up':
+                            // matriz[linha + 1][coluna] += force.intesity;
+                            matriz[linha + 1][coluna] = force.intesity;
+                            break;
+
+                        case 'down':
+                            // matriz[linha + 1][coluna] -= force.intesity;
+                            matriz[linha + 1][coluna] = force.intesity;
+                            break;
+
+                        case 'left':
+                            // matriz[linha][coluna] -= force.intesity;
+                            matriz[linha][coluna] = force.intesity;
+                            break;
+
+                        default:
+                            // matriz[linha][coluna] += force.intesity;
+                            matriz[linha][coluna] = force.intesity;
+                            break;
+                    }
+                }
+            }
+
+            linha += 2;
+            coluna = 0;
+
+        }
+        this.calculateMatriz(matriz);
+
+        this.matriz = matriz;
+    }
+
+    calculateMatriz(matriz) {
+        let pivo;
+
+
+
+        for (let x = 0; x < Point.all.filter(p => p.used).length * 2; x++)// Passa por cada linha pra fazer escalonamento
+        {
+            if (this.round(matriz[x][x], 10) == 0)// Precisa trocar linha
+            {
+                this.TrocarLinhasMatriz(matriz, x);
+            }
+
+            pivo = matriz[x][x];
+
+            for (let y = 0; y < Point.all.filter(p => p.used).length * 2 + 1; y++)// Tranforma elemento da diagonal principal em 1, divide todos da linha pelo pivô
+            {
+                matriz[x][y] /= pivo;
+            }
+
+            for (let x2 = x + 1; x2 < Point.all.filter(p => p.used).length * 2; x2++) {
+                if (this.round(matriz[x2][x], 10) != 0)// Necessário escalonar
+                {
+                    pivo = matriz[x2][x];
+
+                    for (let y = 0; y < Point.all.filter(p => p.used).length * 2 + 1; y++)// Escalona
+                    {
+                        matriz[x2][y] = matriz[x2][y] - (pivo * matriz[x][y]);
+                    }
+                }
+            }
+        }
+
+        for (let x = Point.all.filter(p => p.used).length * 2 - 1; x >= 0; x--)// Passa por cada linha pra fazer escalonamento inverso
+        {
+            pivo = matriz[x][x];
+
+            for (let x2 = x - 1; x2 >= 0; x2--) {
+                if (Math.round(matriz[x2][x], 10) != 0)// Necessário escalonar inversamente
+                {
+                    pivo = matriz[x2][x];
+
+                    for (let y = 0; y < Point.all.filter(p => p.used).length * 2 + 1; y++)// Escalona
+                    {
+                        matriz[x2][y] = matriz[x2][y] - (pivo * matriz[x][y]);
+                    }
+                }
+            }
+        }
+
+        let linha = 0;
+
+        FixedSupport.fixedSupport.fh = matriz[linha++][Point.all.filter(p => p.used).length * 2];
+        FixedSupport.fixedSupport.fv = matriz[linha++][Point.all.filter(p => p.used).length * 2];
+        MobileSupport.mobileSupport.fv = matriz[linha++][Point.all.filter(p => p.used).length * 2];
+
+        for (let barra of Bar.all) {
+            let value = matriz[linha++][Point.all.filter(p => p.used).length * 2]
+            if (value > 0) {
+                barra.strength = value
+                barra.strengthType = 'Tração'
+            } else if (value < 0) {
+                barra.strength = value * -1
+                barra.strengthType = 'Compressão'
+            } else {
+                console.log(matriz);
+                barra.strength = value
+                barra.strengthType = 'Não possui'
+            }
+        }
+    }
+    round(value, decimals) {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    }
+
+    TrocarLinhasMatriz(matriz, linha) {
+        for (let x = linha + 1; x < Point.all.filter(p => p.used).length * 2; x++)// Procura linha para trocar
+        {
+            if (this.round(matriz[x][linha], 10) != 0)// Confirma se é válida para fazer troca
+            {
+                let aux;
+
+                for (let y = 0; y < Point.all.filter(p => p.used).length * 2 + 1; y++)// Troca linha da matriz
+                {
+                    aux = matriz[x][y];
+                    matriz[x][y] = matriz[linha][y];
+                    matriz[linha][y] = aux;
+                }
+
+                break;
+            }
+        }
     }
 }
 
 
-
-export { Point, Grid, Ruler, Bar, FixedSupport, MobileSupport, Force, Verifier }  
+export { Point, Grid, Ruler, Bar, FixedSupport, MobileSupport, Force, Verifier, Calculator }  

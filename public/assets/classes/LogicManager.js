@@ -1,5 +1,5 @@
 import Two from '../plugins/two.module.js'
-import { Grid, Point, Ruler, Bar, Verifier, FixedSupport, MobileSupport, Force } from "./classes.js"
+import { Grid, Point, Ruler, Bar, Verifier, FixedSupport, MobileSupport, Force, Calculator } from "./classes.js"
 
 window.Two = Two
 window.Grid = Grid
@@ -10,6 +10,7 @@ window.FixedSupport = FixedSupport
 window.MobileSupport = MobileSupport
 window.Force = Force
 window.Verifier = Verifier
+window.Calculator = Calculator
 
 class LogicManager {
   constructor() {
@@ -58,6 +59,7 @@ class LogicManager {
     window.rulerGroup = two.makeGroup()
     window.rulerGroup.className = 'ruler-group'
     window.barsGroup = two.makeGroup()
+    window.barsGroup.className = 'bars-group'
     window.supportsGroup = two.makeGroup()
     window.forceGroup = two.makeGroup()
     window.pointGroup = two.makeGroup()
@@ -114,7 +116,7 @@ class LogicManager {
       $(this.to.svg).removeClass('clicked')
       this.from = null
       this.to = null
-      console.info(Bar.all);
+      // console.info(Bar.all);
       return false
     }
     //* uncaught condition
@@ -160,18 +162,18 @@ class LogicManager {
               showCancelButton: true,
               inputValidator: (value) => {
                 try {
-                  if (value.length > 0)
+                  if (Number(value).toString() != 'NaN')
                     true
                   else
                     throw new Error()
-                  value = parseInt(value)
                 } catch (e) {
                   return 'É necessário digitar um número.'
                 }
               }
             }).then(result => {
               if (result.isConfirmed) {
-                Force.all[Force.all.length - 1].intesity = result.value
+                // Force.all[Force.all.length - 1].strength = result.value
+                Force.all[Force.all.length - 1].drawText(result.value)
               } else {
                 Force.all[Force.all.length - 1].destroy()
                 Force.all.pop()
