@@ -9,7 +9,7 @@ $(() => {
   $(document).on('click', '#gerar-grade', function (e) {
 
     let columns = parseFloat($('#input-colunas').val()) - 1,
-      rows = parseFloat($('#input-linhas').val()),
+      rows = parseFloat($('#input-linhas').val()) -1,
       widthDistance = parseFloat($('#input-horizontal').val()),
       heightDistance = parseFloat($('#input-vertical').val())
 
@@ -35,6 +35,7 @@ $(() => {
 
       if (window.logicManager && window.logicManager instanceof LogicManager) {
         logicManager.destroy()
+        delete window.logicManager
       }
 
       window.logicManager = new LogicManager()
@@ -99,11 +100,33 @@ $(() => {
   })
 
   $('#input-colunas').val(3)
-  $('#input-linhas').val(1)
+  $('#input-linhas').val(2)
   $('#input-vertical').val(2)
   $('#input-horizontal').val(4)
   setTimeout(() => {
     $('#gerar-grade').trigger("click")
     two.update()
+    two.render()
+
+    function createBarAux(from, to) {
+    $('#' + Point.all[from].id).click()
+    $('#' + Point.all[to].id).click()
+    }
+
+    createBarAux(1,0)
+    createBarAux(0,2)
+    createBarAux(2,4)
+    createBarAux(4,5)
+    createBarAux(5,3)
+    createBarAux(3,1)
+    createBarAux(3,0)
+    createBarAux(3,2)
+    createBarAux(3,4)
+
+    $('label[for="apoio-movel"] > input').click()
+    $('#' + Point.all[1].id).click()
+    $('label[for="apoio-fixo"] > input').click()
+    $('#' + Point.all[5].id).click()
+
   }, 500);
 })

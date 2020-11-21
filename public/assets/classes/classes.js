@@ -261,9 +261,12 @@ class Bar {
     get to() { return this._to }
 
     get strength() { return this._strength }
-    set strength(value) { this._strength = value }
+    set strength(value) {
+        this._strength = value
+        value > 0 ? this._strengthType = 'Tração'
+            : value == 0 ? this._strengthType = '-' : this._strengthType = 'Compressão'
+    }
     get strengthType() { return this._strengthType }
-    set strengthType(value) { this._strengthType = value }
 
     constructor(from, to) {
         if (!from instanceof Point && !to instanceof Point)
@@ -352,6 +355,29 @@ class Bar {
             //console.log('segundo quadrante');
             return (90 - main) + 90
         } else if (diffRow < 0 && diffCol <= 0) {
+            //console.log('terceiro quadrante');
+            return (90 - main) + 90
+        } else {
+            //console.log('quarto quadrante');
+            return (90 - main) + 180
+        }
+    }
+
+    get angleMath() {
+        let diffRow = (this._to.row - this._from.row) * -1
+        let diffCol = (this._to.column - this._from.column)
+
+        let diffHeight = (Ruler.heightDistance / Grid.rows) * diffRow
+        let diffWidth = (Ruler.widthDistance / Grid.columns) * diffCol
+
+        let main = ((Math.asin(diffHeight / Math.hypot(diffHeight, diffWidth)) * 180 / Math.PI)).toFixed(2)
+        if (diffHeight >= 0 && diffWidth >= 0) {
+            //console.log('primeiro quadrante');
+            return parseFloat(main)
+        } else if (diffHeight >= 0 && diffWidth < 0) {
+            //console.log('segundo quadrante');
+            return (90 - main) + 90
+        } else if (diffHeight < 0 && diffWidth <= 0) {
             //console.log('terceiro quadrante');
             return (90 - main) + 90
         } else {
@@ -625,6 +651,7 @@ class Verifier {
     constructor() {
         this.messages = []
         this.error = []
+        this.infos = []
 
         this.VerifyBarPoints()
         this.VerifyMobileSupport()
@@ -632,7 +659,7 @@ class Verifier {
         this.verifyForces()
         this.verifyIsostaticCondition()
 
-        this.messages.forEach(m => console.log('Válido: ' + m))
+        this.messages.forEach(m => console.info('Válido: ' + m))
         this.error.forEach(m => console.error('Inválido: ' + m))
 
         return this
@@ -643,6 +670,7 @@ class Verifier {
 
         else
             this.messages.push(`Não há a aplicação de forças externas`)
+            this.infos.push(`Não há a aplicação de forças externas`)
     }
 
     VerifyMobileSupport() {
@@ -683,9 +711,9 @@ class Verifier {
         let b = Bar.all.length
         let e = nerdamer('2*p - (b+3)', { p: p, b: b });
         if (e.text() != "0")
-            this.error.push('não é isoestático')
+            this.error.push('Condição isoestática se mostrou inválida')
         else
-            this.messages.push('é isoestático')
+            this.messages.push('Condição isoestática aceita')
     }
 }
 
@@ -693,67 +721,179 @@ class Calculator {
     static matriz = null
     constructor() {
         let v = new Verifier()
-        if (v.error.length > 0)
-            throw new Error('Erro')
-
-        // this.calculateHorizontalReaction()
-        // this.calculateBendingMoment()
+        if (v.error.length > 0) {
+            Swal.fire({
+                title: 'Erro',
+                html: v.error.join('<br>'),
+                icon: 'error',
+              })
+            return null
+        }
 
         Calculator.matriz = null
-        this.calculateForce()
-        Calculator.matriz = this.matriz
-        Calculator.matriz.forEach(row => {
-            let string = ''
-            row.forEach(col => {
-                string += ` ${col} `
-            });
-        });
+        Calculator.matriz = this.calculateForce()
 
+
+        this.CalculaMatrizPorGauss()
+
+        //this.calculateMatriz(Calculator.matriz) <- método também funciona (+-)
+
+        let barras = []
+        Bar.all.forEach(b => {
+            barras.push(`Barra ${b.name}: ${b.strength.toFixed(3)} - ${b.strengthType}<br>`)
+        })
+        let stringHtml = `
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    FixedSupport H: ${FixedSupport.fixedSupport.fh.toFixed(3)}
+                    <br>
+                    FixedSupport V: ${FixedSupport.fixedSupport.fv.toFixed(3)}
+                    <br>
+                    MobileSupport V: ${MobileSupport.mobileSupport.fv.toFixed(3)}
+                    <br>
+                    ${barras.join('\n')}
+                </div>
+            </div>
+        </div>
+        `
+
+        Swal.fire({
+            html: `
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <table id="table-resultados" style="width:100%"
+                            class="dataTable display no-footer table-bordered table-sm" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        ${v.infos.join('<br>')}
+                    </div>
+                </div>
+            </div>`,
+            didRender: () => {
+                let aux = (value) => value.toString().replace('.',',')
+                let table = $('#table-resultados').DataTable({
+                    searching: false,
+                    paging: false,
+                    autoWidth: true,
+                    ordering: false,
+                    info: false,
+                    columns: [
+                        { title: 'Barra' },
+                        { title: 'Forças em KN' },
+                        { title: 'Esforço' },
+                    ]
+                })
+
+                table.row.add(['Suporte Fixo - FH (←→)', aux(FixedSupport.fixedSupport.fh.toFixed(3)), '-'])
+                table.row.add(['Suporte Fixo - FV (↓↑)', aux(FixedSupport.fixedSupport.fv.toFixed(3)), '-'])
+                table.row.add(['Suporte Móvel - FV (↓↑)', aux(FixedSupport.fixedSupport.fh.toFixed(3)), '-'])
+                Bar.all.forEach(b => {
+                    table.row.add([`Barra ${b.name}`, aux(b.strength.toFixed(3)), b.strengthType])
+                })
+                table.draw(false)
+            }
+        })
 
     }
 
-    calculateHorizontalReaction() {
-        this.Ffh // Force fixed support horizontal
-
-        let allFx = Force.all.filter(f => f.direction = 'left' || f.direction == 'right')
-        let sumAllFx = allFx.reduce((accumulator, currentForce) => accumulator + currentForce.intesity, 0)
-        if (FixedSupport.fixedSupport.side === 'right')
-            this.Ffh = allFx == [] ? 0 : sumAllFx
-        else
-            this.Ffh = allFx == [] ? 0 : sumAllFx * -1
-    }
-
-    calculateBendingMoment() {
-        this.Fmv // Force mobile support vertical
-        this.gapY = ((Ruler.heightDistance * 1000) / Grid.rows)
-        this.gapX = ((Ruler.widthDistance * 1000) / Grid.columns)
-
-
-        let Pf = FixedSupport.fixedSupport.point
-        let forcesInPfx = Force.all.filter(f => f.from.column === Pf.column)
-
-        let eq = []
-        forcesInPfx.forEach(f => { return "" })
-
-
-    }
-
-    diffDistance(from, to) {
-        let diffY = null
-        let diffX = null
-        if (from.column == to.column) {
-            diffY = Math.abs((from.row - to.row) * this.gapY)
-        } else {
-            diffX = Math.abs((from.column - to.column) * this.gapX)
+    CalculaMatrizPorGauss() {
+        for (let r = 0; r < Calculator.matriz.length; r++) { // Simplica valores da matriz
+            for (let c = 0; c < Calculator.matriz[r].length; c++) {
+                Calculator.matriz[r][c] = parseFloat(Calculator.matriz[r][c].toFixed(3))
+            }
         }
-        return diffY || diffX
-    }
 
-    resultingForceInPoint(point) {
+        let A = Calculator.matriz.map((m, i) => { // Pega a matriz menos a ultima coluna (requisito da biblioteca)
+            return m.filter((r, j, a) => j < a.length - 1)
+        })
+        let b = Calculator.matriz.map((m, i, a) => m[a.length]) // Extrai os termos independentes, a ultima coluna (equisito da biblioteca)
 
+        let x = this.gaussSolver(A, b)
+
+        x.forEach((n, i, a) => a[i] = parseFloat(n * -1)) // Inverte sinal dos valores
+
+        let index = 0
+        FixedSupport.fixedSupport.fh = x[index++]
+        FixedSupport.fixedSupport.fv = x[index++]
+        MobileSupport.mobileSupport.fv = x[index++]
+
+        for (let barra of Bar.all) {
+            let value = x[index++]
+            barra.strength = value
+        }
     }
 
     calculateForce() {
+        let Points = Point.all.filter(p => p.used)
+        let matrizRows = Points.length * 2
+        let matriz = Array.from(Array(matrizRows), () => new Array(matrizRows + 1))
+
+        for (let r = 0; r < matriz.length; r++) { // Inicia matriz com 0
+            for (let c = 0; c < matriz[r].length; c++) {
+                matriz[r][c] = 0
+            }
+        }
+
+        let linha = 0, coluna = 0
+        Points.forEach(actualPoint => {
+            if (FixedSupport.fixedSupport.point == actualPoint) {
+                matriz[linha][coluna] = 1
+                matriz[linha + 1][++coluna] = 1;
+                matriz[linha + 1][++coluna] = 0;
+            } else if (MobileSupport.mobileSupport.point == actualPoint) {
+                matriz[linha][coluna] = 0;
+                matriz[linha + 1][++coluna] = 0;
+                matriz[linha + 1][++coluna] = 1;
+            } else
+                coluna += 2;
+
+            Bar.all.forEach(actualBar => {
+                coluna++;
+                if (actualBar.from == actualPoint) {
+                    matriz[linha][coluna] = Math.cos(actualBar.angleMath * (Math.PI / 180)).toFixed(15) * 1;
+                    matriz[linha + 1][coluna] = Math.sin(actualBar.angleMath * (Math.PI / 180)).toFixed(15) * 1;
+                } else if (actualBar.to == actualPoint) {
+                    // Multiplica-se por -1 pois barras possuem angulos padronizados que vão do ponto inicial para o final
+                    matriz[linha][coluna] = Math.cos(actualBar.angleMath * (Math.PI / 180)).toFixed(15) * -1;
+                    matriz[linha + 1][coluna] = Math.sin(actualBar.angleMath * (Math.PI / 180)).toFixed(15) * -1;
+                }
+            });
+
+            coluna++;
+
+            Force.all.forEach(actualForce => {
+                if (actualForce.from == actualPoint) {
+                    switch (actualForce.direction) {
+                        case 'up':
+                            matriz[linha + 1][coluna] += Math.abs(actualForce.intesity);
+                            break;
+
+                        case 'down':
+                            matriz[linha + 1][coluna] -= Math.abs(actualForce.intesity);
+                            break;
+
+                        case 'right':
+                            matriz[linha][coluna] -= Math.abs(actualForce.intesity);
+                            break;
+
+                        default:
+                            matriz[linha][coluna] += Math.abs(actualForce.intesity);
+                            break;
+                    }
+                }
+            })
+
+            linha += 2;
+            coluna = 0
+        })
+
+        return matriz;
+    }
+    calculateForceOld() {
         let matrizRows = (Point.all.filter(p => p.used).length) * 2
         let matriz = Array.from(Array(matrizRows), () => new Array(matrizRows + 1))
 
@@ -762,9 +902,6 @@ class Calculator {
                 matriz[r][c] = 0
             }
         }
-
-
-        console.log(matriz);
 
         let linha = 0, coluna = 0;
 
@@ -789,13 +926,13 @@ class Calculator {
             for (let barra of Bar.all) {
                 coluna++;
                 if (barra.from == ponto) {
-                    matriz[linha][coluna] = Math.cos(barra.angle * Math.PI / 180);
-                    matriz[linha + 1][coluna] = Math.sin(barra.angle * Math.PI / 180);
+                    matriz[linha][coluna] = Math.cos(barra.angleMath * (Math.PI / 180)).toFixed(15) * 1;
+                    matriz[linha + 1][coluna] = Math.sin(barra.angleMath * (Math.PI / 180)).toFixed(15) * 1;
                 }
                 else if (barra.to == ponto) {
                     // Multiplica-se por -1 pois barras possuem angulos padronizados que vão do ponto inicial para o final
-                    matriz[linha][coluna] = Math.cos(barra.angle * Math.PI / 180) * -1;
-                    matriz[linha + 1][coluna] = Math.sin(barra.angle * Math.PI / 180) * -1;
+                    matriz[linha][coluna] = Math.cos(barra.angleMath * (Math.PI / 180)).toFixed(15) * -1;
+                    matriz[linha + 1][coluna] = Math.sin(barra.angleMath * (Math.PI / 180)).toFixed(15) * -1;
                 }
 
             }
@@ -832,15 +969,10 @@ class Calculator {
             coluna = 0;
 
         }
-        this.calculateMatriz(matriz);
-
-        this.matriz = matriz;
+        return matriz;
     }
-
     calculateMatriz(matriz) {
         let pivo;
-
-
 
         for (let x = 0; x < Point.all.filter(p => p.used).length * 2; x++)// Passa por cada linha pra fazer escalonamento
         {
@@ -894,19 +1026,25 @@ class Calculator {
 
         for (let barra of Bar.all) {
             let value = matriz[linha++][Point.all.filter(p => p.used).length * 2]
-            if (value > 0) {
-                barra.strength = value
-                barra.strengthType = 'Tração'
-            } else if (value < 0) {
-                barra.strength = value * -1
-                barra.strengthType = 'Compressão'
-            } else {
-                console.log(matriz);
-                barra.strength = value
-                barra.strengthType = 'Não possui'
-            }
+            barra.strength = value
         }
+        // for (let barra of Bar.all) {
+        //     let value = matriz[linha++][Point.all.filter(p => p.used).length * 2]
+        //     if (value > 0) {
+        //         barra.strength = value
+        //         barra.strengthType = 'Tração'
+        //     } else if (value < 0) {
+        //         barra.strength = value * -1
+        //         barra.strengthType = 'Compressão'
+        //     } else {
+        //         barra.strength = value
+        //         barra.strengthType = 'Não possui'
+        //     }
+        // }
+
+
     }
+
     round(value, decimals) {
         return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
     }
@@ -928,6 +1066,60 @@ class Calculator {
                 break;
             }
         }
+    }
+    gaussSolver(A, b) {
+        var i, j, k, l, m;
+        //ETAPA DE ESCALONAMENTO
+        for (k = 0; k < A.length - 1; k++) {
+            //procura o maior k-ésimo coeficiente em módulo
+            var max = Math.abs(A[k][k]);
+            var maxIndex = k;
+            for (i = k + 1; i < A.length; i++) {
+                if (max < Math.abs(A[i][k])) {
+                    max = Math.abs(A[i][k]);
+                    maxIndex = i;
+                }
+            }
+            if (maxIndex != k) {
+                /*
+                troca a equação k pela equação com o
+                maior k-ésimo coeficiente em módulo
+                */
+                for (j = 0; j < A.length; j++) {
+                    var temp = A[k][j];
+                    A[k][j] = A[maxIndex][j];
+                    A[maxIndex][j] = temp;
+                }
+                var temp = b[k];
+                b[k] = b[maxIndex];
+                b[maxIndex] = temp;
+            }
+            //Se A[k][k] é zero, então a matriz dos coeficiente é singular
+            //det A = 0
+            if (A[k][k] == 0) {
+                return null;
+            } else {
+                //realiza o escalonamento
+                for (m = k + 1; m < A.length; m++) {
+                    var F = -A[m][k] / A[k][k];
+                    A[m][k] = 0; //evita uma iteração
+                    b[m] = b[m] + F * b[k];
+                    for (l = k + 1; l < A.length; l++) {
+                        A[m][l] = A[m][l] + F * A[k][l];
+                    }
+                }
+            }
+        }
+        //ETAPA DE RESOLUÇÃO DO SISTEMA
+        var X = [];
+        for (i = A.length - 1; i >= 0; i--) {
+            X[i] = b[i];
+            for (j = i + 1; j < A.length; j++) {
+                X[i] = X[i] - X[j] * A[i][j];
+            }
+            X[i] = X[i] / A[i][i];
+        }
+        return X;
     }
 }
 

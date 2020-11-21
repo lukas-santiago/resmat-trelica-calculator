@@ -32,16 +32,18 @@ class LogicManager {
 
     two.update()
     // simplify to get DOM elements of Point's SVG
-    two.bind('render', function (e) {
-      if (Point.rendered == false) {
-        Point.all.forEach(point => {
-          if (typeof point.svg !== point.circle._renderer.elem) {
-            point.svg = point.circle._renderer.elem
-            Point.rendered = true
-          }
-        });
-      }
-    })
+    two.bind('render', LogicManager.renderPointSVG)
+  }
+
+  static renderPointSVG() {
+    if (Point.rendered == false) {
+      Point.all.forEach(point => {
+        if (typeof point.svg !== point.circle._renderer.elem) {
+          point.svg = point.circle._renderer.elem
+          Point.rendered = true
+        }
+      });
+    }
   }
 
   initializeTwo() {
@@ -70,6 +72,8 @@ class LogicManager {
   }
 
   destroy() {
+
+    Point.rendered = false
     two.clear()
     two.update()
     $('#draw-animation').empty()
@@ -84,12 +88,21 @@ class LogicManager {
     delete window.two
     delete window.logicManager;
 
-    Grid.all = []
     Point.all = []
+    Grid.all = []
+    Grid.columns = null
+    Grid.rows = null
+    Grid.rulerGroup = null
+    Grid.gridLinesGroup = null
+    Ruler.topRulerGroup
+    Ruler.sideRulerGroup
+    Ruler.widthDistance
+    Ruler.heightDistance
     Bar.all = []
-    MobileSupport.mobileSupport = null
     FixedSupport.fixedSupport = null
+    MobileSupport.mobileSupport = null
     Force.all = []
+    Force.preview = null
 
   }
 
@@ -97,6 +110,10 @@ class LogicManager {
     //* set from
     if (!this.from) {
       this.from = Point.all.find(p => p.id == e.target.id)
+      if (!this.from.svg) {
+        Point.rendered = false
+        LogicManager.renderPointSVG()
+      }
       $(this.from.svg).addClass('clicked')
     }
     //* unset from

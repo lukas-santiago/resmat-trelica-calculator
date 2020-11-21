@@ -8,6 +8,7 @@
     "bootstrap": "^4.5.3",
     "connect-livereload": "^0.6.1",
     "express": "^4.17.1",
+    "gaussian-elimination": "^1.0.2",
     "jquery": "^3.5.1",
     "livereload": "^0.9.1",
     "nodemon": "^2.0.6",
