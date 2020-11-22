@@ -18,9 +18,13 @@
                     Inscrição
                 </div>
                 <div class="card-body">
-                    <input class="form-control mb-2" type="text" placeholder="Usuário">
-                    <input class="form-control" type="password" placeholder="Senha">
-                    <button class="btn btn-success mt-3" type="submit">Salvar</button>
+                    <div id="alert"></div>
+                    <form>
+                        <input class="form-control mb-2" type="text" id="email" placeholder="Usuário" autocomplete="on">
+                        <input class="form-control" type="password" id="password" placeholder="Senha" autocomplete="on">
+                    </form>
+                    <div class="text-muted text-left">*Usuários podem ser excluídos sem prévio aviso.</div>
+                    <button onclick="register()" class="btn btn-success mt-3" type="button">Registrar</button>
                 </div>
                 <div class="card-footer">
                     <a href="../login" class="text-primary">Já tem uma conta?</a>
@@ -32,6 +36,8 @@
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <script src="script.js"></script>
 </body>
 
 </html>
