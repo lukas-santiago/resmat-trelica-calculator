@@ -225,8 +225,8 @@ class LogicManager {
           false;
         }
 
-        $('.content').off('mousemove', forceMouseMove)
-        $('.content').off('mouseup', forceMouseUp)
+        $('.content').off('pointermove', forceMouseMove)
+        $('.content').off('pointerup', forceMouseUp)
         two.update()
       }
 
@@ -236,8 +236,8 @@ class LogicManager {
         two.update()
       }
 
-      $('.content').on('mouseup', forceMouseUp)
-      $('.content').on('mousemove', forceMouseMove)
+      $('.content').on('pointerup', forceMouseUp)
+      $('.content').on('pointermove', forceMouseMove)
     }
     else {
       $('label[for="forcas"]').tooltip('show')

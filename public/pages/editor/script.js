@@ -84,7 +84,7 @@ $(() => {
   })
 
 
-  $(document).on('mousedown', '.point-group', function (e) {
+  $(document).on('pointerdown', '.point-group', function (e) {
     let mode = $('.draw-option.active').attr('for')
 
     function cleanBarState() {
