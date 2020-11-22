@@ -669,9 +669,10 @@ class Verifier {
         if (Force.all.length > 0)
             this.messages.push(`Há a aplicação de forças externas`)
 
-        else
+        else {
             this.messages.push(`Não há a aplicação de forças externas`)
             this.infos.push(`Não há a aplicação de forças externas`)
+        }
     }
 
     VerifyMobileSupport() {
@@ -727,7 +728,7 @@ class Calculator {
                 title: 'Erro',
                 html: v.error.join('<br>'),
                 icon: 'error',
-              })
+            })
             return null
         }
 
@@ -775,7 +776,7 @@ class Calculator {
                 </div>
             </div>`,
             didRender: () => {
-                let aux = (value) => value.toString().replace('.',',')
+                let aux = (value) => value.toString().replace('.', ',')
                 let table = $('#table-resultados').DataTable({
                     searching: false,
                     paging: false,
