@@ -1,3 +1,6 @@
+let api
+fetch('../../assets/urls.json').then(response => response.text()).then(result => api = JSON.parse(result).api)
+
 function auth() {
     let username = $('#email').val()
     let password = $('#password').val()
@@ -17,7 +20,7 @@ function auth() {
         redirect: 'follow'
     };
 
-    fetch("http://localhost:9000/auth", requestOptions)
+    fetch(api + 'auth', requestOptions)
         .then(response => response.text())
         .then(result => {
             console.log(result);

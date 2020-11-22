@@ -1,3 +1,6 @@
+let api
+fetch('../../assets/urls.json').then(response => response.text()).then(result => api = JSON.parse(result).api)
+
 function register() {
     let username = $('#email').val()
     let password = $('#password').val()
@@ -17,7 +20,7 @@ function register() {
         redirect: 'follow'
     };
 
-    fetch('http://localhost:9000/users', requestOptions)
+    fetch(api + 'users', requestOptions)
         .then(response => response.text())
         .then(result => {
             let resultJSON = JSON.parse(result)
