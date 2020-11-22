@@ -48,32 +48,32 @@ function auth() {
     }
 }
 
-$('#github-button').on('click', function () {
-    // Initialize with your OAuth.io app public key
-    let client_id = 'a9d69eae9d80473d29ce';
-    let redirect_uri = window.location.toString()
+// $('#github-button').on('click', function () {
+//     // Initialize with your OAuth.io app public key
+//     let client_id = 'a9d69eae9d80473d29ce';
+//     let redirect_uri = window.location.toString()
 
-    let url = 'https://github.com/login/oauth/authorize'
-    url += '?client_id=' + client_id
-    url += '&redirect_uri=' + redirect_uri
+//     let url = 'https://github.com/login/oauth/authorize'
+//     url += '?client_id=' + client_id
+//     url += '&redirect_uri=' + redirect_uri
 
-    window.location.href = url
-})
+//     window.location.href = url
+// })
 
-$(function () {
-    let code = new URLSearchParams(location.search).get("code")
-    if (code && code.length > 0) {
-        $.ajax({
-            type: "POST",
-            url: "http://localhost:9000/auth/github",
-            dataType: 'json',
-            data: { access_token: code },
-            success: function (response) {
-                location.href = '../editor/'
-            },
-            error: function (response) {
-                console.log(response);
-            }
-        })
-    }
-})
+// $(function () {
+//     let code = new URLSearchParams(location.search).get("code")
+//     if (code && code.length > 0) {
+//         $.ajax({
+//             type: "POST",
+//             url: "http://localhost:9000/auth/github",
+//             dataType: 'json',
+//             data: { access_token: code },
+//             success: function (response) {
+//                 location.href = '../editor/'
+//             },
+//             error: function (response) {
+//                 console.log(response);
+//             }
+//         })
+//     }
+// })
