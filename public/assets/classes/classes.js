@@ -291,10 +291,10 @@ class Bar {
 
         // console.log(pointsThatCanBeInPath);
         // pointsThatCanBeInPath.shift()
-        let pointsInPath = Point.all.filter(p => this.svg.isPointInStroke(p.svgPoint))
+        this.pointsInPath = Point.all.filter(p => this.svg.isPointInStroke(p.svgPoint))
 
         // console.info(pointsInPath);
-        pointsInPath.forEach(p => p.disablePoint())
+        this.pointsInPath.forEach(p => p.disablePoint())
 
 
 
@@ -336,6 +336,7 @@ class Bar {
     }
 
     destroy() {
+        this.pointsInPath.filter(p => p.used == false).forEach(p => p.drawSelf())
         this.from.discardPointFromBar(this)
         this.to.discardPointFromBar(this)
         this.line.remove()
