@@ -1,0 +1,26 @@
+{
+  "name": "resmat-twojs",
+  "version": "1.0.0",
+  "main": "server.js",
+  "license": "MIT",
+  "dependencies": {
+    "@sweetalert2/theme-wordpress-admin": "^4.0.1",
+    "bootstrap": "^4.5.3",
+    "connect-livereload": "^0.6.1",
+    "express": "^4.17.1",
+    "gaussian-elimination": "^1.0.2",
+    "jquery": "^3.5.1",
+    "livereload": "^0.9.1",
+    "nodemon": "^2.0.6",
+    "popper.js": "^1.16.1",
+    "sweetalert2": "^10.9.1",
+    "two.js": "^0.7.0-stable.1"
+  },
+  "type": "module",
+  "scripts": {
+    "live": "nodemon --ext js,html,css --ignore public "
+  },
+  "devDependencies": {
+    "open": "^7.3.0"
+  }
+}
