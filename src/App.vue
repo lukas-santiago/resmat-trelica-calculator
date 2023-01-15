@@ -5,8 +5,8 @@
   <div>
     App
   </div>
-  <router-link to="/">Home</router-link>
-  <router-link to="/editor">Home Copy</router-link>
+  <router-link to="/">Inicio</router-link>
+  <router-link to="/editor">Editor</router-link>
 
   <div class="container">
     <router-view></router-view>

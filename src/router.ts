@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import HelloWorld from '@/views/HelloWorld.vue'
+import Home from '@/views/Home.vue'
 import Editor from '@/views/Editor.vue'
 
 const routes = [
-    { path: '/', name: 'Início', component: HelloWorld },
+    { path: '/', name: 'Início', component: Home },
     { path: '/editor', name: 'Editor', component: Editor },
 ]
 
