@@ -4,8 +4,8 @@ import Home from '@/views/Home.vue'
 import Editor from '@/views/Editor.vue'
 
 const routes = [
-    { path: '/', name: 'Início', component: Home },
-    { path: '/editor', name: 'Editor', component: Editor },
+    { path: '/home', name: 'Início', component: Home },
+    { path: '/', name: 'Editor', component: Editor },
 ]
 
 const router = createRouter({
