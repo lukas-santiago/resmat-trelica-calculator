@@ -1,7 +1,8 @@
+import Popper from 'vue3-popper';
 <template>
     <label :for="inputFor">
-        {{ text }}
-        <Popper :content="popup" :placement="placement">
+        <slot />
+        <Popper :content="popup" :placement="placement" hover openDelay="200" closeDelay="100">
             <v-icon name="bi-info-circle"></v-icon>
         </Popper>
     </label>
@@ -9,7 +10,6 @@
 
 <script setup lang="ts">
 defineProps([
-    'text',
     'popup',
     'placement',
     'inputFor',
