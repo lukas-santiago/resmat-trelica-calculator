@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import Popper from "vue3-popper";
-import LabelInfo from "@/components/LabelInfo.vue";
+import Two from "two.js";
+import VectorProcessor from '../assets/classes/VectorProcessor'
+import LabelInfo from "../components/LabelInfo.vue";
 
+const colunas = ref<number | null>(null)
+const linhas = ref<number | null>(null)
+const widthDistance = ref<number | null>(null)
+const heightDistance = ref<number | null>(null)
+const tool = ref<'barra' | 'apoio-fixo' | 'apoio-movel' | 'forcas' | null>(null)
+const svgContainer = ref<HTMLDivElement>()
 
-let colunas = ref<number | null>(null),
-  linhas = ref<number | null>(null),
-  widthDistance = ref<number | null>(null),
-  heightDistance = ref<number | null>(null),
-  tool = ref<'barra' | 'apoio-fixo' | 'apoio-movel' | 'forcas' | null>(null)
+let VectorProcessorInstance: VectorProcessor
 
 onMounted(() => {
   colunas.value = 3
@@ -18,16 +21,29 @@ onMounted(() => {
   tool.value = null
 })
 
-const calculate = () => {
+const gerarGrade = () => {
   console.table({
     colunas: colunas.value,
     linhas: linhas.value,
     widthDistance: widthDistance.value,
     heightDistance: heightDistance.value,
     tool: tool.value,
+  });
+
+  VectorProcessorInstance = new VectorProcessor({
+    colunas: colunas.value!,
+    linhas: linhas.value!,
+    widthDistance: widthDistance.value!,
+    heightDistance: heightDistance.value!,
+    containerElement: svgContainer.value!
   })
+
 }
 </script>
+
+<style scoped>
+
+</style>
 
 <template>
   <div class="wrapper">
@@ -75,14 +91,15 @@ const calculate = () => {
                 </div>
               </div>
               <small class="text-dark">*Ao gerar a grade, a tela será resetada.</small>
-              <button id="gerar-grade" class="btn btn-info" type="button">Gerar Grade</button>
+              <button id="gerar-grade" class="btn btn-info" type="button" @click="gerarGrade">Gerar Grade</button>
               <hr class="d-sm-none d-md-block">
             </div>
             <div class="col-sm-6 col-md-12 align-self-sm-end">
               <div class="list-group btn-group-toggle" data-toggle="buttons">
                 <label-info class="btn btn-secondary mb-1 draw-option" input-for="barra" placement="top"
                   popup="Escolha dois pontos na grade para gerar a barra. Para excluir, clique com o botão direito na barra desejada.">
-                  <input type="radio" name="draw-option" id="barra" autocomplete="off" checked> Barra
+                  <input type="radio" name="draw-option" id="barra" autocomplete="off" checked>
+                  Barra
                 </label-info>
                 <label-info class="btn btn-secondary mb-1 draw-option" input-for="apoio-movel" placement="top"
                   popup="Escolha um ponto na grade para gerar o apoio, somente um poderá ser criado">
@@ -100,12 +117,12 @@ const calculate = () => {
                 </label-info>
               </div>
               <hr class="d-sm-none d-md-block">
-              <button class="btn btn-danger" type="button" @click="calculate()">Calcular</button>
+              <button class="btn btn-danger" type="button">Calcular</button>
             </div>
           </div>
         </div>
         <div class="col-sm-12 col-md-8 col-lg-9 mb-sm-5 mb-md-0 mb-lg-0 content">
-          <div id="draw-animation" style="touch-action: none;"></div>
+          <div id="draw-animation" style="touch-action: none;" ref="svgContainer"></div>
         </div>
       </div>
     </div>
@@ -113,6 +130,4 @@ const calculate = () => {
 </template>
 
 
-<style scoped>
 
-</style>

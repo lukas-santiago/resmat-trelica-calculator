@@ -1,4 +1,5 @@
 import Popper from 'vue3-popper';
+
 <template>
     <label :for="inputFor">
         <slot />
